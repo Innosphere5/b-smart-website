@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
-const EXPRESS_BACKEND_URL = process.env.EXPRESS_BACKEND_URL || 'http://localhost:5000';
+const EXPRESS_BACKEND_URL = (process.env.EXPRESS_BACKEND_URL || '').replace(/\/+$/, '');
 
 function mapFromDb(row) {
   if (!row) return null;

@@ -20,7 +20,7 @@ import {
 import { useCart } from "@/lib/CartContext";
 import { useNotifications } from "@/lib/NotificationContext";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const API_BASE_URL = "";
 
 const SIDEBAR_LINKS = [
   { label: "My Orders", Icon: Package, active: true },

@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { supabase } from '@/lib/supabase';
 
 const NotificationContext = createContext(null);
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_BASE_URL = "";
 
 // Synthesize pleasant sound chime using Web Audio API
 function playChime(type = 'default') {

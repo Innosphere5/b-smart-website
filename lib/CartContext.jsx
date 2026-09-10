@@ -7,7 +7,7 @@ const CartContext = createContext(null);
 
 const CART_STORAGE_KEY = "bsmart_user_cart_v1";
 const ORDERS_STORAGE_KEY = "bsmart_user_order_ids_v1";
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const API_BASE_URL = "";
 
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);

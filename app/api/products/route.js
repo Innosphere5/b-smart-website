@@ -27,8 +27,8 @@ function mapFromDb(row) {
 export async function GET() {
   try {
     // 1. Try Express backend ONLY if a distinct external backend URL is configured
-    const expressBackend = process.env.EXPRESS_BACKEND_URL || process.env.NEXT_PUBLIC_EXPRESS_URL;
-    if (expressBackend && !expressBackend.includes(':3000')) {
+    const expressBackend = (process.env.EXPRESS_BACKEND_URL || process.env.NEXT_PUBLIC_EXPRESS_URL || '').replace(/\/+$/, '');
+    if (expressBackend && !expressBackend.includes('localhost')) {
       try {
         const res = await fetch(`${expressBackend}/api/products`, { cache: 'no-store' });
         if (res.ok) {
