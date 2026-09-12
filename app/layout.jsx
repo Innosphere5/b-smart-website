@@ -13,6 +13,10 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 export const metadata = {
   title: "B'Smart Dresses — School Uniforms & Delivery",
   description: "Official B'Smart Dresses uniform store with fast home delivery and tracking.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({ children }) {

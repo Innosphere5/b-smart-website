@@ -24,8 +24,21 @@ function mapFromDb(row) {
   };
 }
 
+let serverProductsCache = null;
+let lastServerFetchTime = 0;
+const SERVER_CACHE_TTL = 15000; // 15 seconds server-side cache
+
 export async function GET() {
   try {
+    // Return cached products if fresh (< 15 seconds) to reduce latency and DB load
+    if (serverProductsCache && Date.now() - lastServerFetchTime < SERVER_CACHE_TTL) {
+      return NextResponse.json(serverProductsCache, {
+        headers: {
+          'Cache-Control': 'public, s-maxage=15, stale-while-revalidate=60',
+        },
+      });
+    }
+
     // 1. Try Express backend ONLY if a distinct external backend URL is configured
     const expressBackend = (process.env.EXPRESS_BACKEND_URL || process.env.NEXT_PUBLIC_EXPRESS_URL || '').replace(/\/+$/, '');
     if (expressBackend && !expressBackend.includes('localhost')) {
@@ -34,7 +47,13 @@ export async function GET() {
         if (res.ok) {
           const data = await res.json();
           if (data.success && Array.isArray(data.products)) {
-            return NextResponse.json(data);
+            serverProductsCache = data;
+            lastServerFetchTime = Date.now();
+            return NextResponse.json(data, {
+              headers: {
+                'Cache-Control': 'public, s-maxage=15, stale-while-revalidate=60',
+              },
+            });
           }
         }
       } catch (e) {
@@ -49,17 +68,33 @@ export async function GET() {
       .order('created_at', { ascending: false });
 
     if (error) {
+      // If error but we have stale cache, serve stale cache
+      if (serverProductsCache) {
+        return NextResponse.json(serverProductsCache);
+      }
       return NextResponse.json({ success: false, message: error.message }, { status: 500 });
     }
 
     const products = (data || []).map(mapFromDb).filter(Boolean);
-    return NextResponse.json({
+    const responsePayload = {
       success: true,
       database: 'Supabase PostgreSQL',
       count: products.length,
       products,
+    };
+
+    serverProductsCache = responsePayload;
+    lastServerFetchTime = Date.now();
+
+    return NextResponse.json(responsePayload, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=15, stale-while-revalidate=60',
+      },
     });
   } catch (err) {
+    if (serverProductsCache) {
+      return NextResponse.json(serverProductsCache);
+    }
     return NextResponse.json(
       { success: false, message: err.message || 'Server Error' },
       { status: 500 }

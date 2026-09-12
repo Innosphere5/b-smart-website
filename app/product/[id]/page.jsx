@@ -9,8 +9,9 @@ import GarmentThumb from "@/components/GarmentThumb";
 import Badge from "@/components/Badge";
 import { ShoppingCart, Minus, Plus, Cloud, CheckCircle2, ShieldCheck, Check, ArrowRight } from "lucide-react";
 import { getProductById } from "@/data/products";
-import { getLiveProductById } from "@/lib/api";
+import { getLiveProductById, getCachedProducts } from "@/lib/api";
 import { useCart } from "@/lib/CartContext";
+import ScrollProgressBar from "@/components/ScrollProgressBar";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -18,7 +19,19 @@ export default function ProductDetailPage() {
   const productId = typeof params?.id === "string" ? params.id : Array.isArray(params?.id) ? params.id[0] : "";
 
   const { addToCart } = useCart();
-  const [product, setProduct] = useState(() => getProductById(productId));
+  
+  // Fast initial product lookup from static data or cached products
+  const [product, setProduct] = useState(() => {
+    const staticProd = getProductById(productId);
+    if (staticProd) return staticProd;
+    const cached = getCachedProducts();
+    if (cached) {
+      return cached.find((p) => String(p.id) === String(productId)) || null;
+    }
+    return null;
+  });
+
+  const [isLoading, setIsLoading] = useState(() => !product);
   const [justAdded, setJustAdded] = useState(false);
   const [selectedSize, setSelectedSize] = useState("30");
   const [qty, setQty] = useState(1);
@@ -27,13 +40,21 @@ export default function ProductDetailPage() {
   useEffect(() => {
     async function loadProduct() {
       if (productId) {
-        const liveProduct = await getLiveProductById(productId);
-        if (liveProduct) {
-          setProduct(liveProduct);
-          if (Array.isArray(liveProduct.sizes) && liveProduct.sizes.length > 0) {
-            setSelectedSize(liveProduct.sizes[0]);
+        try {
+          const liveProduct = await getLiveProductById(productId);
+          if (liveProduct) {
+            setProduct(liveProduct);
+            if (Array.isArray(liveProduct.sizes) && liveProduct.sizes.length > 0) {
+              setSelectedSize(liveProduct.sizes[0]);
+            }
           }
+        } catch (err) {
+          console.error("Error loading product detail:", err);
+        } finally {
+          setIsLoading(false);
         }
+      } else {
+        setIsLoading(false);
       }
     }
     loadProduct();
@@ -48,11 +69,42 @@ export default function ProductDetailPage() {
     }, 3500);
   };
 
+  // High-fidelity Product Detail Skeleton UI while loading
+  if (isLoading) {
+    return (
+      <main className="app-frame bg-[#FEF8E7] mobile-bottom-pad">
+        <ScrollProgressBar />
+        <Header activeHref="/" cartCount={0} />
+        <div className="mx-auto max-w-7xl px-3 py-4 sm:px-6 sm:py-8 md:px-10 md:py-10">
+          {/* Breadcrumb Skeleton */}
+          <div className="h-4 w-48 rounded bg-gray-200 animate-pulse mb-6" />
+
+          <div className="grid gap-6 sm:gap-10 md:grid-cols-2 rounded-2xl sm:rounded-3xl border-2 border-[#FCD34D]/60 bg-white p-4 sm:p-6 md:p-10 shadow-lg animate-pulse">
+            {/* Gallery Skeleton */}
+            <div className="shimmer-box aspect-square min-h-[280px] sm:min-h-[400px] rounded-xl sm:rounded-2xl border border-[#FDE047]/60 flex items-center justify-center">
+              <div className="shimmer-effect" />
+            </div>
+
+            {/* Content Details Skeleton */}
+            <div className="space-y-4">
+              <div className="h-5 w-28 rounded-full bg-[#FEF08A]" />
+              <div className="h-8 w-3/4 rounded-lg bg-gray-200" />
+              <div className="h-10 w-32 rounded-xl bg-[#FECDD3]" />
+              <div className="h-20 w-full rounded-xl bg-gray-100" />
+              <div className="h-12 w-full rounded-2xl bg-[#FDE047]/70 mt-6" />
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </main>
+    );
+  }
 
   // If product is not found or null, render clean 404 UI
   if (!product) {
     return (
       <main className="app-frame bg-[#FEF8E7] mobile-bottom-pad">
+        <ScrollProgressBar />
         <Header activeHref="/" cartCount={0} />
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 md:px-10 md:py-16 text-center">
           <div className="mx-auto flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl sm:rounded-3xl bg-white text-[#9F1239] border-2 border-[#FCD34D] shadow-md">
