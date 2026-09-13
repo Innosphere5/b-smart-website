@@ -32,6 +32,17 @@ export default function Header({ activeHref = "/", cartCount: propCartCount }) {
   const cartCount = propCartCount !== undefined ? propCartCount : contextCartCount;
   const [drawerOpen, setDrawerOpen] = useState(false);
   const pathname = usePathname();
+  const [currentHash, setCurrentHash] = useState("");
+
+  // Track hash changes for section-anchored tabs like Catalog (#featured)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setCurrentHash(window.location.hash || "");
+      const handleHash = () => setCurrentHash(window.location.hash || "");
+      window.addEventListener("hashchange", handleHash);
+      return () => window.removeEventListener("hashchange", handleHash);
+    }
+  }, [pathname]);
 
   // Lock body scroll when drawer is open
   useEffect(() => {
@@ -76,11 +87,11 @@ export default function Header({ activeHref = "/", cartCount: propCartCount }) {
                 priority
               />
             </div>
-            <div className="flex flex-col">
-              <span className="text-base sm:text-lg md:text-xl font-black tracking-tight text-white uppercase leading-none">
+            <div className="flex flex-col justify-center">
+              <span className="text-sm sm:text-lg md:text-xl font-black tracking-tight text-white uppercase leading-tight">
                 B&apos;SMART <span className="text-[#FACC15]">DRESSES</span>
               </span>
-              <span className="hidden sm:block text-[10px] font-extrabold tracking-wider text-[#FACC15] uppercase mt-0.5 font-mono">
+              <span className="text-[7.5px] xs:text-[8.5px] sm:text-[10px] font-extrabold tracking-wider text-[#FACC15] uppercase mt-0.5 font-mono leading-none block">
                 GSTIN: 03ANXPG2252L1ZS
               </span>
             </div>
@@ -209,11 +220,25 @@ export default function Header({ activeHref = "/", cartCount: propCartCount }) {
       <div className="bottom-nav md:hidden">
         <div className="flex items-center justify-around px-1 py-1.5">
           {BOTTOM_NAV.map(({ label, href, Icon, showBadge }) => {
-            const isActive = pathname === href || (href !== "/" && pathname?.startsWith(href.split("#")[0]));
+            const isHome = href === "/" && pathname === "/" && (!currentHash || currentHash === "#");
+            const isCatalog = href === "/#featured" && pathname === "/" && currentHash === "#featured";
+            const isOtherPage = href !== "/" && href !== "/#featured" && pathname?.startsWith(href);
+            const isActive = isHome || isCatalog || isOtherPage;
+
             return (
               <Link
                 key={label}
                 href={href}
+                onClick={() => {
+                  if (href === "/") {
+                    setCurrentHash("");
+                    if (pathname === "/") {
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                  } else if (href === "/#featured") {
+                    setCurrentHash("#featured");
+                  }
+                }}
                 className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg transition-colors min-w-[52px] ${
                   isActive
                     ? "text-[#9F1239]"

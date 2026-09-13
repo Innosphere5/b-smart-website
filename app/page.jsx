@@ -65,13 +65,24 @@ export default function HomePage() {
     };
   }, []);
 
-  // Compute unique categories from loaded products
+  // Garment category tabs instead of generic Boys/Girls Uniform
   const categories = useMemo(() => {
-    const set = new Set();
+    const baseTabs = ["All", "Blazer", "Shirt", "Pant", "Sweater", "Accessories"];
+    // Collect any other unique categories from loaded products, excluding boy/girl uniform
+    const extra = new Set();
     products.forEach((p) => {
-      if (p.category) set.add(p.category);
+      if (p.category) {
+        const lower = p.category.toLowerCase().trim();
+        if (
+          !lower.includes("boy") &&
+          !lower.includes("girl") &&
+          !baseTabs.some((t) => lower.includes(t.toLowerCase()))
+        ) {
+          extra.add(p.category);
+        }
+      }
     });
-    return ["All", ...Array.from(set)];
+    return [...baseTabs, ...Array.from(extra)];
   }, [products]);
 
   // Filter products by school and category
@@ -81,9 +92,53 @@ export default function HomePage() {
         selectedSchool === "All" ||
         item.school?.toLowerCase().includes(selectedSchool.toLowerCase()) ||
         item.school === "General School";
-      const matchCategory =
-        selectedCategory === "All" || item.category === selectedCategory;
-      return matchSchool && matchCategory;
+
+      if (!matchSchool) return false;
+      if (selectedCategory === "All") return true;
+
+      const cat = (item.category || "").toLowerCase();
+      const name = (item.name || "").toLowerCase();
+      const sel = selectedCategory.toLowerCase();
+
+      if (sel.includes("blazer") || sel.includes("blezzer") || sel.includes("coat")) {
+        return (
+          cat.includes("blazer") ||
+          cat.includes("court") ||
+          cat.includes("coat") ||
+          name.includes("court") ||
+          name.includes("blazer") ||
+          name.includes("coat")
+        );
+      }
+      if (sel.includes("shirt")) {
+        return cat.includes("shirt") || name.includes("shirt");
+      }
+      if (sel.includes("pant")) {
+        return (
+          cat.includes("pant") ||
+          cat.includes("trouser") ||
+          name.includes("pant") ||
+          name.includes("trouser")
+        );
+      }
+      if (sel.includes("sweater")) {
+        return (
+          cat.includes("sweater") ||
+          cat.includes("cardigan") ||
+          name.includes("sweater")
+        );
+      }
+      if (sel.includes("accessories") || sel.includes("tie")) {
+        return (
+          cat.includes("accessories") ||
+          cat.includes("tie") ||
+          cat.includes("belt") ||
+          name.includes("tie") ||
+          name.includes("belt")
+        );
+      }
+
+      return cat === sel || cat.includes(sel) || name.includes(sel);
     });
   }, [products, selectedSchool, selectedCategory]);
 
@@ -105,7 +160,7 @@ export default function HomePage() {
       {/* Hero Section with Parallax Depth and Glow */}
       <section className="w-full bg-[#FEF8E7] py-4 sm:py-6 md:py-10 overflow-hidden">
         <div className="mx-auto max-w-7xl px-3 sm:px-6 md:px-10">
-          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#7F1D1D] via-[#9F1239] to-[#BE123C] p-5 sm:p-8 md:p-12 shadow-2xl border-2 sm:border-4 border-[#FACC15] animate-glow">
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#7F1D1D] via-[#9F1239] to-[#BE123C] p-4 sm:p-8 md:p-12 shadow-2xl border-2 sm:border-4 border-[#FACC15] animate-glow">
             {/* Soft decorative golden blur ambient circles */}
             <div className="absolute -right-20 -top-20 h-48 sm:h-72 w-48 sm:w-72 rounded-full bg-[#FACC15]/25 blur-3xl pointer-events-none" />
             <div className="absolute -left-20 -bottom-20 h-48 sm:h-72 w-48 sm:w-72 rounded-full bg-[#FACC15]/15 blur-3xl pointer-events-none" />
@@ -113,12 +168,14 @@ export default function HomePage() {
             <div className="relative z-10 grid gap-6 sm:gap-8 md:grid-cols-2 md:items-center">
               <ScrollReveal direction="up" delay={50}>
                 <div>
-                  <div className="inline-flex flex-wrap items-center gap-1.5 sm:gap-2 rounded-full bg-[#FACC15] px-3 sm:px-4 py-1 sm:py-1.5 text-[10px] sm:text-xs font-black uppercase tracking-wider text-[#7F1D1D] shadow-md transition-transform duration-200 hover:scale-105">
-                    <Award size={13} className="text-[#7F1D1D]" />
-                    <span>★ Premium Quality Uniforms</span>
+                  <div className="inline-flex items-center gap-1.5 sm:gap-2.5 rounded-full bg-gradient-to-r from-[#FACC15] via-[#FDE047] to-[#FACC15] px-2.5 sm:px-4 py-1 sm:py-1.5 text-[9.5px] sm:text-xs font-black uppercase tracking-wider text-[#7F1D1D] shadow-[0_2px_12px_rgba(250,204,21,0.3)] border border-yellow-200/80 transition-all duration-200 hover:scale-105 max-w-full">
+                    <span className="flex h-4 w-4 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-[#7F1D1D] text-[#FACC15] shrink-0 shadow-xs">
+                      <Award size={10} className="sm:w-3 sm:h-3" />
+                    </span>
+                    <span className="font-black whitespace-nowrap">★ Premium Quality Uniforms</span>
                     {isLive && (
-                      <span className="inline-flex items-center gap-1 ml-1 rounded-full bg-emerald-700/20 px-1.5 py-0.5 text-[9px] text-emerald-950 font-black">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
+                      <span className="inline-flex items-center gap-1 rounded-full bg-[#7F1D1D]/15 px-1.5 sm:px-2 py-0.5 text-[8px] sm:text-[9px] text-[#7F1D1D] font-extrabold shrink-0 border border-[#7F1D1D]/20">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-ping" />
                         Live Store
                       </span>
                     )}
@@ -237,20 +294,18 @@ export default function HomePage() {
                 <ScrollReveal key={name} direction="up" delay={idx * 60}>
                   <button
                     onClick={() => handleSchoolCardClick(name)}
-                    className={`w-full flex flex-col items-center gap-2 sm:gap-3.5 rounded-xl sm:rounded-2xl border-2 p-3 sm:p-6 text-center shadow-sm transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-xl active:scale-95 ${
-                      isSelected
+                    className={`w-full flex flex-col items-center gap-2 sm:gap-3.5 rounded-xl sm:rounded-2xl border-2 p-3 sm:p-6 text-center shadow-sm transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-xl active:scale-95 ${isSelected
                         ? "border-[#9F1239] ring-4 ring-[#9F1239]/20 bg-[#FFF1F2]"
                         : highlighted
-                        ? "border-[#9F1239] bg-[#FFF5F5] hover:border-[#7F1D1D]"
-                        : "border-[#FCD34D] bg-white hover:border-[#9F1239]"
-                    }`}
+                          ? "border-[#9F1239] bg-[#FFF5F5] hover:border-[#7F1D1D]"
+                          : "border-[#FCD34D] bg-white hover:border-[#9F1239]"
+                      }`}
                   >
                     <span
-                      className={`flex h-10 w-10 sm:h-14 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl shadow-inner border transition-transform duration-300 hover:scale-110 ${
-                        isSelected
+                      className={`flex h-10 w-10 sm:h-14 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl shadow-inner border transition-transform duration-300 hover:scale-110 ${isSelected
                           ? "bg-[#9F1239] text-white border-[#7F1D1D]"
                           : "bg-[#FFF1F2] text-[#9F1239] border-[#FECDD3]"
-                      }`}
+                        }`}
                     >
                       <Icon size={22} />
                     </span>
@@ -292,11 +347,10 @@ export default function HomePage() {
                     <button
                       key={cat}
                       onClick={() => setSelectedCategory(cat)}
-                      className={`rounded-xl px-3 py-1.5 text-xs font-black transition-all duration-200 active:scale-95 ${
-                        selectedCategory === cat
+                      className={`rounded-xl px-3 py-1.5 text-xs font-black transition-all duration-200 active:scale-95 ${selectedCategory === cat
                           ? "bg-[#9F1239] text-white shadow-md border-2 border-[#7F1D1D]"
                           : "bg-white text-gray-700 hover:bg-[#FEF08A] border border-[#FCD34D]"
-                      }`}
+                        }`}
                     >
                       {cat}
                     </button>
@@ -423,7 +477,7 @@ export default function HomePage() {
                       2. Pick Size &amp; Order
                     </h3>
                     <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm font-semibold text-gray-600 max-w-xs leading-relaxed">
-                      Choose exact sizing with transparent pricing and standard school size charts.
+                      Select your size for perfect fitting and place your order.
                     </p>
                   </div>
                 </ScrollReveal>

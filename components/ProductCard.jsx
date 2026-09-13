@@ -6,6 +6,13 @@ import { ShoppingCart } from "lucide-react";
 import Badge from "@/components/Badge";
 import GarmentThumb from "@/components/GarmentThumb";
 
+// Helper to remove boy/girl uniform tag from the product
+const isBoyGirlUniformTag = (cat) => {
+  if (!cat) return false;
+  const lower = cat.toLowerCase().trim();
+  return lower.includes("boy") || lower.includes("girl");
+};
+
 export default function ProductCard({ item }) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -45,11 +52,16 @@ export default function ProductCard({ item }) {
               />
             )}
 
-            {/* School & Class Badges with Floating Soft Shadow */}
-            <div className="absolute left-1.5 sm:left-2.5 top-1.5 sm:top-2.5 flex flex-col gap-0.5 sm:gap-1 items-start max-w-[80%] z-10 pointer-events-none">
-              <Badge variant="school">{item.school}</Badge>
+            {/* School & Class Badges with Floating Soft Shadow — mobile-adapted */}
+            <div className="absolute left-1 sm:left-2 top-1 sm:top-2 flex flex-col gap-0.5 sm:gap-1 items-start max-w-[88%] z-10 pointer-events-none">
+              <Badge
+                variant="school"
+                className="max-w-full truncate text-[7.5px] xs:text-[8px] sm:text-[10px] px-1.5 sm:px-2.5 py-0.5 bg-[#FEFCE8]/95 backdrop-blur-xs border border-[#FCD34D]/90 shadow-xs"
+              >
+                {item.school}
+              </Badge>
               {item.applicableClass && (
-                <span className="rounded-full bg-[#7F1D1D] px-2 py-0.5 text-[8px] sm:text-[10px] font-black text-white shadow-md tracking-tight">
+                <span className="rounded-full bg-[#7F1D1D]/90 backdrop-blur-xs px-1.5 sm:px-2 py-0.5 text-[6.5px] xs:text-[7.5px] sm:text-[9.5px] font-black text-white shadow-xs tracking-tight">
                   {item.applicableClass}
                 </span>
               )}
@@ -58,7 +70,7 @@ export default function ProductCard({ item }) {
         </Link>
 
         <div className="mt-2.5 sm:mt-4">
-          {item.category && (
+          {item.category && !isBoyGirlUniformTag(item.category) && (
             <span className="text-[9px] sm:text-[11px] font-black uppercase tracking-wider text-[#9F1239] block mb-0.5 sm:mb-1">
               {item.category}
             </span>

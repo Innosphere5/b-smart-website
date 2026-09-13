@@ -6,10 +6,10 @@ const VARIANTS = {
   processing: "bg-[#FACC15]/30 text-[#881337] font-bold",
 };
 
-export default function Badge({ variant = "school", children }) {
+export default function Badge({ variant = "school", children, className = "" }) {
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-extrabold ${VARIANTS[variant]}`}
+      className={`inline-flex items-center rounded-full px-1.5 sm:px-2.5 py-0.5 text-[8px] sm:text-[10.5px] font-bold sm:font-extrabold ${VARIANTS[variant]} ${className}`}
     >
       {children}
     </span>

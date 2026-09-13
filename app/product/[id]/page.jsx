@@ -215,7 +215,7 @@ export default function ProductDetailPage() {
                     {product.applicableClass}
                   </span>
                 )}
-                {product.category && (
+                {product.category && !product.category.toLowerCase().includes("boy") && !product.category.toLowerCase().includes("girl") && (
                   <span className="rounded-full bg-[#FEFCE8] border border-[#FCD34D] text-[#9F1239] px-2.5 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs font-black">
                     {product.category}
                   </span>
