@@ -67,7 +67,7 @@ export default function HomePage() {
 
   // Garment category tabs instead of generic Boys/Girls Uniform
   const categories = useMemo(() => {
-    const baseTabs = ["All", "Blazer", "Shirt", "Pant", "Sweater", "Accessories"];
+    const baseTabs = ["All", "Blazer", "Shirt", "Pant", "Sweater"];
     // Collect any other unique categories from loaded products, excluding boy/girl uniform
     const extra = new Set();
     products.forEach((p) => {
@@ -295,16 +295,16 @@ export default function HomePage() {
                   <button
                     onClick={() => handleSchoolCardClick(name)}
                     className={`w-full flex flex-col items-center gap-2 sm:gap-3.5 rounded-xl sm:rounded-2xl border-2 p-3 sm:p-6 text-center shadow-sm transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-xl active:scale-95 ${isSelected
-                        ? "border-[#9F1239] ring-4 ring-[#9F1239]/20 bg-[#FFF1F2]"
-                        : highlighted
-                          ? "border-[#9F1239] bg-[#FFF5F5] hover:border-[#7F1D1D]"
-                          : "border-[#FCD34D] bg-white hover:border-[#9F1239]"
+                      ? "border-[#9F1239] ring-4 ring-[#9F1239]/20 bg-[#FFF1F2]"
+                      : highlighted
+                        ? "border-[#9F1239] bg-[#FFF5F5] hover:border-[#7F1D1D]"
+                        : "border-[#FCD34D] bg-white hover:border-[#9F1239]"
                       }`}
                   >
                     <span
                       className={`flex h-10 w-10 sm:h-14 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl shadow-inner border transition-transform duration-300 hover:scale-110 ${isSelected
-                          ? "bg-[#9F1239] text-white border-[#7F1D1D]"
-                          : "bg-[#FFF1F2] text-[#9F1239] border-[#FECDD3]"
+                        ? "bg-[#9F1239] text-white border-[#7F1D1D]"
+                        : "bg-[#FFF1F2] text-[#9F1239] border-[#FECDD3]"
                         }`}
                     >
                       <Icon size={22} />
@@ -348,8 +348,8 @@ export default function HomePage() {
                       key={cat}
                       onClick={() => setSelectedCategory(cat)}
                       className={`rounded-xl px-3 py-1.5 text-xs font-black transition-all duration-200 active:scale-95 ${selectedCategory === cat
-                          ? "bg-[#9F1239] text-white shadow-md border-2 border-[#7F1D1D]"
-                          : "bg-white text-gray-700 hover:bg-[#FEF08A] border border-[#FCD34D]"
+                        ? "bg-[#9F1239] text-white shadow-md border-2 border-[#7F1D1D]"
+                        : "bg-white text-gray-700 hover:bg-[#FEF08A] border border-[#FCD34D]"
                         }`}
                     >
                       {cat}
