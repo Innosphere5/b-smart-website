@@ -28,7 +28,6 @@ export default function CheckoutPage() {
     firstName: "Rahul",
     lastName: "Sharma",
     mobile: "9876543210",
-    email: "rahul.sharma@example.com",
     address1: "House No. 142, Street 4, Model Town",
     address2: "Near Kali Mata Temple",
     city: "Bathinda",
@@ -75,7 +74,6 @@ export default function CheckoutPage() {
     const orderPayload = {
       customerName: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
       customerMobile: formData.mobile.trim(),
-      customerEmail: formData.email.trim(),
       school: formData.school || cartItems[0]?.school || "Delhi Public School",
       deliveryAddress: {
         address1: formData.address1.trim(),
@@ -178,7 +176,7 @@ export default function CheckoutPage() {
       <div className="mx-auto max-w-7xl px-3 py-5 sm:px-6 sm:py-8 md:px-10 md:py-10">
         <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-[#7F1D1D]">Delivery Checkout</h1>
         <p className="mt-1 text-[10px] sm:text-xs font-semibold text-gray-600">
-          Provide delivery details to generate your uniform order invoice and schedule doorstep delivery.
+          Provide delivery details to place your uniform order and schedule doorstep delivery.
         </p>
 
         {errorMsg && (
@@ -236,19 +234,7 @@ export default function CheckoutPage() {
                     onChange={(e) => handleInputChange("mobile", e.target.value)}
                   />
                 </div>
-                <div className="sm:col-span-2">
-                  <label className="field-label font-bold text-gray-800 text-[10px] sm:text-xs" htmlFor="email">
-                    Email Address (For Invoice Copy)
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    className="field-input font-semibold text-xs sm:text-sm"
-                    placeholder="email@example.com"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
-                  />
-                </div>
+
               </div>
             </section>
 
@@ -422,7 +408,7 @@ export default function CheckoutPage() {
                 </>
               ) : (
                 <>
-                  <CheckCircle2 size={16} /> Place Order &amp; Generate Invoice ✓
+                  <CheckCircle2 size={16} /> Place Order ✓
                 </>
               )}
             </button>

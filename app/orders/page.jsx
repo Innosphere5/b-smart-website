@@ -83,7 +83,7 @@ export default function OrdersPage() {
                 )}
               </div>
               <p className="text-xs font-semibold text-gray-600 mt-1">
-                Track your school uniform order fulfillment, delivery times, and download official PDF invoices.
+                Track your order fulfilment, delivery times and download official pdf order form.
               </p>
             </div>
             <Link
@@ -234,7 +234,7 @@ export default function OrdersPage() {
                           rel="noopener noreferrer"
                           className="flex items-center gap-1.5 rounded-xl border border-[#9F1239] bg-[#FFF1F2] px-3.5 py-1.5 text-xs font-black text-[#9F1239] hover:bg-[#FFE4E6] transition"
                         >
-                          <FileText size={14} /> PDF Invoice
+                          <FileText size={14} /> PDF Order Form
                         </a>
 
                         <Link

@@ -294,7 +294,7 @@ export default function OrderConfirmationPage({ searchParams }) {
               </div>
             </div>
 
-            {/* Action Bar: PDF Invoice & Continue Shopping */}
+            {/* Action Bar: PDF Order Form & Continue Shopping */}
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <a
                 href={`${API_BASE_URL}/api/orders/${order?.id || orderId}/pdf`}
@@ -302,7 +302,7 @@ export default function OrderConfirmationPage({ searchParams }) {
                 rel="noopener noreferrer"
                 className="btn-accent flex-1 flex items-center justify-center gap-2 py-3.5 text-sm font-black shadow-md hover:shadow-lg transition"
               >
-                <FileText size={18} /> Download / Print PDF Invoice
+                <FileText size={18} /> Download / Print PDF Order Form
               </a>
 
               <Link

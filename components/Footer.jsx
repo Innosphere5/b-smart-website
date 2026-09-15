@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Phone, MapPin, RotateCcw, ShieldCheck, Truck, Clock } from "lucide-react";
+import { Phone, MapPin, RotateCcw, Truck, Clock } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -37,7 +37,7 @@ export default function Footer() {
 
             <div className="rounded-xl border border-white/20 bg-white/10 p-3 text-xs w-full">
               <p className="text-yellow-100/90 leading-relaxed font-semibold">
-                Quality school uniforms, compliant fabrics, accessories, and fast doorstep delivery.
+                Best quality school uniforms, comfortable fabrics , accessories and fast doorstep delivery.
               </p>
             </div>
 
@@ -81,14 +81,15 @@ export default function Footer() {
             <div className="rounded-2xl border-2 border-[#FACC15] bg-[#7F1D1D] p-4 shadow-md">
               <div className="flex items-center gap-2">
                 <RotateCcw className="text-[#FACC15] shrink-0" size={18} />
-                <h3 className="text-sm sm:text-base font-black text-white uppercase">Return / Exchange Policy</h3>
+                <h3 className="text-sm sm:text-base font-black text-white uppercase">Terms &amp; Conditions</h3>
               </div>
-              <div className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-[#FACC15] px-3 py-1 text-xs font-black text-[#7F1D1D] uppercase shadow-sm">
-                <ShieldCheck size={14} /> At Store Only
-              </div>
-              <p className="mt-2 text-[11px] font-semibold text-yellow-100 leading-snug">
-                For return or exchange of any product, please visit our physical store with original invoice or receipt within 7 days. Select your size for perfect fitting and place your order.
-              </p>
+              <ol className="mt-2 text-[10px] font-semibold text-yellow-100 leading-snug list-none space-y-1">
+                <li>1. Any return or exchange of the product can be done within 7 days of purchase at our store.</li>
+                <li>2. Original receipt or invoice is required.</li>
+                <li>3. Clothes should be unworn, unwashed and with all original tags unbroken should be there in same condition.</li>
+                <li>4. No Guarantee No Claim on any product.</li>
+                <li>5. Subject to Bathinda Jurisdiction only.</li>
+              </ol>
             </div>
 
             {/* Store Address */}

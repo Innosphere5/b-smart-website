@@ -39,12 +39,12 @@ export async function GET(request, { params }) {
           return new Response(pdfBuffer, {
             headers: {
               'Content-Type': 'application/pdf',
-              'Content-Disposition': `inline; filename="bsmart_invoice_${id}.pdf"`
+              'Content-Disposition': `inline; filename="bsmart_order_${id}.pdf"`
             }
           });
         }
       } catch (e) {
-        // Fallback to high-definition printable HTML invoice
+        // Fallback to printable HTML order form
       }
     }
 
@@ -63,7 +63,7 @@ export async function GET(request, { params }) {
     } catch (e) {}
 
     if (!order) {
-      return NextResponse.json({ success: false, message: 'Order not found for PDF invoice' }, { status: 404 });
+      return NextResponse.json({ success: false, message: 'Order not found for PDF' }, { status: 404 });
     }
 
     const addr = typeof order.deliveryAddress === 'object' && order.deliveryAddress !== null
@@ -96,13 +96,13 @@ export async function GET(request, { params }) {
     const statusBg = statusUpper === 'ACCEPTED' ? '#DBEAFE' : statusUpper === 'COMPLETED' ? '#D1FAE5' : '#FEF3C7';
     const statusColor = statusUpper === 'ACCEPTED' ? '#1E40AF' : statusUpper === 'COMPLETED' ? '#065F46' : '#92400E';
 
-    // HTML fallback invoice printable view with complete real credentials
+    // HTML printable order form view with complete real credentials
     const html = `
       <!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
-        <title>B'Smart Order Invoice - ${order.orderNumber || order.id}</title>
+        <title>B'Smart Order Receipt - ${order.orderNumber || order.id}</title>
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 30px; color: #1F2937; max-width: 850px; margin: auto; background: #FFF; }
           .top-brand-bar { height: 8px; background: #881337; margin: -30px -30px 24px -30px; }
@@ -110,10 +110,10 @@ export async function GET(request, { params }) {
           .store-name { font-size: 26px; font-weight: 900; color: #881337; letter-spacing: -0.5px; }
           .store-sub { font-size: 10px; font-weight: 800; color: #D97706; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
           .store-meta { font-size: 11px; color: #6B7280; margin-top: 6px; line-height: 1.4; }
-          .invoice-box { background: #FEFCE8; border: 1.5px solid #FCD34D; border-radius: 12px; padding: 14px 18px; text-align: right; }
-          .invoice-title { font-size: 14px; font-weight: 900; color: #881337; }
-          .invoice-no { font-size: 12px; font-weight: 800; color: #1F2937; margin-top: 4px; }
-          .invoice-date { font-size: 11px; color: #4B5563; margin-top: 2px; }
+          .receipt-box { background: #FEFCE8; border: 1.5px solid #FCD34D; border-radius: 12px; padding: 14px 18px; text-align: right; }
+          .receipt-title { font-size: 14px; font-weight: 900; color: #881337; }
+          .receipt-no { font-size: 12px; font-weight: 800; color: #1F2937; margin-top: 4px; }
+          .receipt-date { font-size: 11px; color: #4B5563; margin-top: 2px; }
           .status-badge { display: inline-block; margin-top: 8px; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 900; background: ${statusBg}; color: ${statusColor}; }
           .cards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
           .info-card { border: 1px solid #E5E7EB; border-radius: 10px; padding: 14px; }
@@ -133,7 +133,7 @@ export async function GET(request, { params }) {
       </head>
       <body>
         <div class="top-brand-bar"></div>
-        <button class="btn-print" onclick="window.print()">🖨️ Print Invoice / Save as PDF</button>
+        <button class="btn-print" onclick="window.print()">🖨️ Print / Save as PDF</button>
 
         <div class="header">
           <div>
@@ -144,10 +144,10 @@ export async function GET(request, { params }) {
               #MCB-Z304654, Dr. Mela Ram Hospital Road, Bathinda (Punjab)
             </div>
           </div>
-          <div class="invoice-box">
-            <div class="invoice-title">OFFICIAL INVOICE</div>
-            <div class="invoice-no">${order.orderNumber || order.id}</div>
-            <div class="invoice-date">Date: ${formattedDate}</div>
+          <div class="receipt-box">
+            <div class="receipt-title">ORDER RECEIPT</div>
+            <div class="receipt-no">${order.orderNumber || order.id}</div>
+            <div class="receipt-date">Date: ${formattedDate}</div>
             <div class="status-badge">STATUS: ${statusUpper}</div>
           </div>
         </div>
@@ -157,7 +157,6 @@ export async function GET(request, { params }) {
             <div class="info-card-title">Customer Credentials</div>
             <div class="info-line"><strong>Name:</strong> ${order.customerName}</div>
             <div class="info-line"><strong>Mobile:</strong> ${order.customerMobile || 'N/A'}</div>
-            <div class="info-line"><strong>Email:</strong> ${order.customerEmail || 'N/A'}</div>
             <div class="info-line"><strong>School:</strong> ${order.school || 'General School'}</div>
           </div>
 
@@ -212,7 +211,14 @@ export async function GET(request, { params }) {
         ` : ''}
 
         <div style="margin-top: 36px; text-align: center; font-size: 11px; color: #9CA3AF; border-top: 1px solid #E5E7EB; padding-top: 16px;">
-          Thank you for shopping with B'Smart Dresses. For exchange or delivery inquiries, call +91 98765-43210.
+          <strong style="color:#881337; display:block; margin-bottom:6px;">TERMS &amp; CONDITIONS</strong>
+          <div style="text-align:left; max-width:600px; margin:auto; line-height:1.7;">
+            1. Any return or exchange of the product can be done within 7 days of purchase at our store.<br>
+            2. Original receipt or invoice is required.<br>
+            3. Clothes should be unworn, unwashed and with all original tags unbroken should be there in same condition.<br>
+            4. No Guarantee No Claim on any product.<br>
+            5. Subject to Bathinda Jurisdiction only.
+          </div>
         </div>
       </body>
       </html>
@@ -224,9 +230,9 @@ export async function GET(request, { params }) {
       }
     });
   } catch (err) {
-    console.error('Error generating order invoice:', err);
+    console.error('Error generating order PDF:', err);
     return NextResponse.json(
-      { success: false, message: err.message || 'Error generating invoice' },
+      { success: false, message: err.message || 'Error generating PDF' },
       { status: 500 }
     );
   }

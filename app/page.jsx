@@ -26,10 +26,17 @@ import {
 import { getLiveProducts, getCachedProducts } from "@/lib/api";
 
 const SCHOOLS = [
-  { name: "DAV Public School", tag: "Boys & Girls", Icon: GraduationCap },
-  { name: "St. Mary's", tag: "Primary & Secondary", Icon: ShieldCheck },
-  { name: "Delhi Public School", tag: "All Grades", Icon: Landmark },
-  { name: "Kendriya Vidyalaya", tag: "Uniforms & Accessories", Icon: BookOpen, highlighted: true },
+  { name: "Delhi Public School, Bathinda", tag: "All Grades", Icon: Landmark, highlighted: true },
+  { name: "St. Xavier School, Bathinda", tag: "Boys & Girls", Icon: ShieldCheck },
+  { name: "St. Joseph School, Bathinda", tag: "All Classes", Icon: GraduationCap },
+  { name: "Silver Oaks School, Bathinda", tag: "All Grades", Icon: BookOpen },
+  { name: "Silver Oaks Global School, Bathinda", tag: "All Grades", Icon: Layers },
+  { name: "St. Paul's School, Bathinda", tag: "Boys & Girls", Icon: ShieldCheck },
+  { name: "Xavier World School, Bathinda", tag: "All Classes", Icon: GraduationCap },
+  { name: "St. Kabir Convent School, Bhuchoo Khurd", tag: "All Grades", Icon: BookOpen },
+  { name: "St. Kabir Convent School, Model Town", tag: "All Grades", Icon: BookOpen },
+  { name: "The Sanskaar School, Talwandi Sabo", tag: "All Classes", Icon: Landmark },
+  { name: "DAV Public School, Bathinda", tag: "All Grades", Icon: GraduationCap },
 ];
 
 export default function HomePage() {
@@ -197,7 +204,7 @@ export default function HomePage() {
                             Free Home Delivery
                           </div>
                           <div className="text-[10px] sm:text-xs font-bold text-yellow-100">
-                            Min Order:{" "}
+                            Minimum Order Value:{" "}
                             <span className="text-white font-black underline decoration-[#FACC15]">
                               Rs. 500/-
                             </span>
@@ -212,7 +219,7 @@ export default function HomePage() {
 
                   <p className="mt-3 sm:mt-4 max-w-md text-[10px] sm:text-xs md:text-sm leading-relaxed text-yellow-100 font-semibold flex items-start gap-1.5">
                     <span>
-                      📍 <strong className="text-white">Store:-</strong> #MCB-Z304654, Dr. Mela Ram Hospital Road, Amrik Singh Road, Bathinda. (PB)
+                      📍 <strong className="text-white">Store:-</strong> #MCB-Z304654, Dr. Mela Ram Hospital Road, Amrik Singh Road, Bathinda ( PB ) 151001
                     </span>
                   </p>
 
@@ -271,7 +278,7 @@ export default function HomePage() {
                   </h2>
                 </div>
                 <p className="mt-1 text-xs sm:text-sm font-semibold text-gray-700">
-                  Select your institution to view compliant uniforms
+                  Select your school institution to view complete uniforms
                 </p>
               </div>
 
@@ -286,7 +293,7 @@ export default function HomePage() {
             </div>
           </ScrollReveal>
 
-          <div className="mt-6 sm:mt-8 grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-4">
+          <div className="mt-6 sm:mt-8 grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
             {SCHOOLS.map(({ name, tag, Icon, highlighted }, idx) => {
               const isSelected = selectedSchool === name;
 
@@ -336,7 +343,7 @@ export default function HomePage() {
                   </h2>
                 </div>
                 <p className="mt-1 text-xs sm:text-sm font-semibold text-gray-700">
-                  Strictly compliant school uniforms, blazers, sweaters &amp; accessories
+                  Select your school institution to view complete uniforms
                 </p>
               </div>
 
@@ -450,7 +457,7 @@ export default function HomePage() {
                 How B&apos;Smart Works
               </h2>
               <p className="mt-2 text-xs sm:text-sm font-semibold text-gray-600 max-w-md mx-auto">
-                3 Simple Steps to Get Compliant School Uniforms Delivered to Your Doorstep
+                3 simple steps to get best quality school uniforms delivered to your doorstep
               </p>
 
               <div className="mt-8 sm:mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
@@ -463,7 +470,7 @@ export default function HomePage() {
                       1. Select School &amp; Class
                     </h3>
                     <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm font-semibold text-gray-600 max-w-xs leading-relaxed">
-                      Select your school institution and student class group for certified dress code compliance.
+                      Select your school name and class group for perfect dress code.
                     </p>
                   </div>
                 </ScrollReveal>

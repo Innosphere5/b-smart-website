@@ -100,7 +100,7 @@ export default function CartPage() {
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 rounded-lg sm:rounded-xl border border-emerald-300 bg-white px-3 sm:px-3.5 py-1.5 sm:py-2 text-[10px] sm:text-xs font-black text-emerald-900 shadow-sm transition hover:bg-emerald-50"
                 >
-                  <FileText size={13} className="text-[#881337]" /> PDF Invoice
+                  <FileText size={13} className="text-[#881337]" /> PDF Order Form
                 </a>
 
                 <button
@@ -164,7 +164,7 @@ export default function CartPage() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-1 rounded-lg border border-amber-400 bg-white px-3 py-1.5 text-[10px] sm:text-xs font-bold text-amber-900 shadow-xs hover:bg-amber-100 shrink-0"
               >
-                <FileText size={12} /> Invoice
+                <FileText size={12} /> Order Form
               </a>
             </div>
           </div>
