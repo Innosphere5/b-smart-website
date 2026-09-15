@@ -498,7 +498,7 @@ export default function HomePage() {
                       3. Fast Doorstep Delivery
                     </h3>
                     <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm font-semibold text-gray-600 max-w-xs leading-relaxed">
-                      Receive durable, certified school uniforms packaged cleanly and delivered to your home.
+                      Receive durable & comfortable school uniforms packaged cleanly and delivered to your home.
                     </p>
                   </div>
                 </ScrollReveal>
