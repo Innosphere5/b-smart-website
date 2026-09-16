@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, Suspense } from "react";
@@ -131,10 +132,6 @@ function RegisterForm() {
           />
         </div>
 
-        <div className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[#FEFCE8] px-3 py-1 text-[11px] font-black uppercase tracking-wider text-[#881337] border border-[#FCD34D]">
-          <Sparkles size={12} className="text-[#EAB308]" />
-          <span>Quick Registration</span>
-        </div>
 
         <h1 className="mt-2 text-2xl font-black tracking-tight text-[#881337]">
           Create Account
@@ -274,9 +271,8 @@ function RegisterForm() {
                 {[1, 2, 3, 4].map((step) => (
                   <div
                     key={step}
-                    className={`h-full flex-1 rounded-full transition-colors ${
-                      strength >= step ? strengthColors[strength] : "bg-gray-100"
-                    }`}
+                    className={`h-full flex-1 rounded-full transition-colors ${strength >= step ? strengthColors[strength] : "bg-gray-100"
+                      }`}
                   />
                 ))}
               </div>
