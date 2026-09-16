@@ -5,9 +5,10 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   Search, User, ShoppingCart, Sparkles,
-  Menu, X, Home, ShoppingBag, Package, LayoutGrid
+  Menu, X, Home, ShoppingBag, Package, LayoutGrid, ChevronDown, LogOut
 } from "lucide-react";
 import { useCart } from "@/lib/CartContext";
+import { useAuth } from "@/lib/AuthContext";
 import NotificationCenter from "@/components/NotificationCenter";
 
 const NAV_LINKS = [
@@ -33,6 +34,8 @@ export default function Header({ activeHref = "/", cartCount: propCartCount }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const pathname = usePathname();
   const [currentHash, setCurrentHash] = useState("");
+  const { user, logout } = useAuth();
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   // Track hash changes for section-anchored tabs like Catalog (#featured)
   useEffect(() => {
@@ -123,9 +126,86 @@ export default function Header({ activeHref = "/", cartCount: propCartCount }) {
           {/* Right Icons */}
           <div className="ml-auto flex items-center gap-1.5 sm:gap-2.5 md:gap-4 md:ml-0">
             <NotificationCenter />
-            <Link href="/account" aria-label="Account" className="hidden sm:flex text-white/90 hover:text-[#FACC15] transition-colors p-1.5 rounded-lg hover:bg-white/10">
-              <User size={20} />
-            </Link>
+
+            {/* Desktop Account / Sign In */}
+            {user ? (
+              <div className="relative hidden sm:block">
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 px-2.5 py-1.5 transition text-xs font-black text-white border border-white/20 cursor-pointer"
+                  aria-label="User menu"
+                >
+                  {user.photoURL ? (
+                    <Image
+                      src={user.photoURL}
+                      alt={user.displayName || "User"}
+                      width={22}
+                      height={22}
+                      className="rounded-full object-cover border border-[#FACC15]"
+                    />
+                  ) : (
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#FACC15] text-[#881337] text-[10px] font-black">
+                      {(user.displayName?.[0] || user.email?.[0] || "U").toUpperCase()}
+                    </span>
+                  )}
+                  <span className="max-w-[85px] truncate text-xs font-bold text-white">
+                    {user.displayName?.split(" ")[0] || "Account"}
+                  </span>
+                  <ChevronDown size={14} className="text-[#FACC15]" />
+                </button>
+
+                {userMenuOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setUserMenuOpen(false)}
+                    />
+                    <div className="absolute right-0 mt-2 w-48 rounded-2xl border-2 border-[#FCD34D] bg-white p-2 text-gray-800 shadow-2xl z-50 animate-in fade-in zoom-in-95">
+                      <div className="px-3 py-2 border-b border-gray-100">
+                        <p className="text-xs font-black text-[#881337] truncate">
+                          {user.displayName || "Parent Account"}
+                        </p>
+                        <p className="text-[10px] font-semibold text-gray-500 truncate">
+                          {user.email}
+                        </p>
+                      </div>
+                      <Link
+                        href="/account"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold hover:bg-[#FEFCE8] text-gray-700 hover:text-[#881337] transition"
+                      >
+                        <User size={15} /> My Profile
+                      </Link>
+                      <Link
+                        href="/orders"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold hover:bg-[#FEFCE8] text-gray-700 hover:text-[#881337] transition"
+                      >
+                        <Package size={15} /> My Orders
+                      </Link>
+                      <button
+                        onClick={() => {
+                          setUserMenuOpen(false);
+                          logout();
+                        }}
+                        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-rose-700 hover:bg-rose-50 transition cursor-pointer"
+                      >
+                        <LogOut size={15} /> Sign Out
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                aria-label="Sign In"
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-white/30 bg-white/10 hover:bg-white/20 px-3 py-1.5 text-xs font-black text-white transition cursor-pointer"
+              >
+                <User size={15} className="text-[#FACC15]" />
+                <span>Sign In</span>
+              </Link>
+            )}
             <Link href="/cart" aria-label="Cart" className="relative text-white/90 hover:text-[#FACC15] transition-colors p-1.5 rounded-lg hover:bg-white/10">
               <ShoppingCart size={20} />
               {cartCount > 0 && (
@@ -173,6 +253,56 @@ export default function Header({ activeHref = "/", cartCount: propCartCount }) {
                 <Search size={16} className="shrink-0 text-[#FACC15]" />
                 <span className="text-white/70 font-medium text-xs">Search uniform, school...</span>
               </div>
+            </div>
+
+            {/* Mobile User Status */}
+            <div className="px-4 py-2 border-b border-white/15">
+              {user ? (
+                <div className="flex items-center justify-between rounded-2xl bg-white/10 p-2.5">
+                  <div className="flex items-center gap-2.5">
+                    {user.photoURL ? (
+                      <Image
+                        src={user.photoURL}
+                        alt="User"
+                        width={28}
+                        height={28}
+                        className="rounded-full object-cover border border-[#FACC15]"
+                      />
+                    ) : (
+                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#FACC15] text-[#881337] text-xs font-black">
+                        {(user.displayName?.[0] || user.email?.[0] || "U").toUpperCase()}
+                      </span>
+                    )}
+                    <div className="flex flex-col">
+                      <span className="text-xs font-bold text-white truncate max-w-[130px]">
+                        {user.displayName || "Customer"}
+                      </span>
+                      <span className="text-[10px] text-white/60 truncate max-w-[130px]">
+                        {user.email}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setDrawerOpen(false);
+                      logout();
+                    }}
+                    className="p-1.5 rounded-lg bg-white/10 text-white/80 hover:text-white"
+                    title="Sign Out"
+                  >
+                    <LogOut size={16} />
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={() => setDrawerOpen(false)}
+                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#FACC15] text-[#881337] text-xs font-black shadow-sm"
+                >
+                  <User size={15} />
+                  <span>Sign In / Register</span>
+                </Link>
+              )}
             </div>
 
             {/* Nav Links */}

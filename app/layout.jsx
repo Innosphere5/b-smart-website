@@ -1,7 +1,8 @@
-﻿import { Plus_Jakarta_Sans } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/lib/CartContext";
 import { NotificationProvider } from "@/lib/NotificationContext";
+import { AuthProvider } from "@/lib/AuthContext";
 import NotificationToast from "@/components/NotificationToast";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -11,7 +12,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata = {
-  metadataBase: new URL("https://bsmartdresses.in"),
+  metadataBase: new URL("https://bsmartdresses.com"),
   title: {
     default: "B'Smart Dresses Bathinda - School Uniforms & Home Delivery",
     template: "%s | B'Smart Dresses Bathinda",
@@ -19,19 +20,19 @@ export const metadata = {
   description:
     "B'Smart Dresses Bathinda - Punjab's trusted school uniform store. Order premium quality uniforms online for Delhi Public School, St. Xavier, St. Joseph, Silver Oaks, St. Paul's & more. Fast doorstep delivery. Min order Rs500.",
   keywords: [
-    "B'Smart Dresses","BSmart Dresses","BSmart Bathinda","B Smart Dresses Bathinda","bsmartdresses.in",
-    "school uniforms Bathinda","school uniforms Punjab","school uniform home delivery Bathinda",
-    "buy school uniforms online Bathinda","school uniform store near me","uniform shop Bathinda",
-    "school shirt Bathinda","school pant Bathinda","school skirt Bathinda","school tie Bathinda",
-    "school blazer Bathinda","school sweater Bathinda","school track suit Bathinda",
-    "Delhi Public School Bathinda uniform","DPS Bathinda uniform","St. Xavier School Bathinda uniform",
-    "St. Joseph School Bathinda uniform","Silver Oaks School Bathinda uniform","DAV Public School Bathinda uniform",
-    "Amrik Singh Road Bathinda shop","MCB Bathinda uniform store","Bathinda Punjab uniform dealer",
-    "order school uniform online Punjab","school uniform doorstep delivery","school uniform online shopping India",
-    "affordable school uniforms Punjab","best school uniform store Bathinda","premium school uniforms Punjab",
-    "nursery to class 12 uniform","wholesale school uniform Bathinda",
+    "B'Smart Dresses", "BSmart Dresses", "BSmart Bathinda", "B Smart Dresses Bathinda", "bsmartdresses.in",
+    "school uniforms Bathinda", "school uniforms Punjab", "school uniform home delivery Bathinda",
+    "buy school uniforms online Bathinda", "school uniform store near me", "uniform shop Bathinda",
+    "school shirt Bathinda", "school pant Bathinda", "school skirt Bathinda", "school tie Bathinda",
+    "school blazer Bathinda", "school sweater Bathinda", "school track suit Bathinda",
+    "Delhi Public School Bathinda uniform", "DPS Bathinda uniform", "St. Xavier School Bathinda uniform",
+    "St. Joseph School Bathinda uniform", "Silver Oaks School Bathinda uniform", "DAV Public School Bathinda uniform",
+    "Amrik Singh Road Bathinda shop", "MCB Bathinda uniform store", "Bathinda Punjab uniform dealer",
+    "order school uniform online Punjab", "school uniform doorstep delivery", "school uniform online shopping India",
+    "affordable school uniforms Punjab", "best school uniform store Bathinda", "premium school uniforms Punjab",
+    "nursery to class 12 uniform", "wholesale school uniform Bathinda",
   ],
-  alternates: { canonical: "https://bsmartdresses.in" },
+  alternates: { canonical: "https://bsmartdresses.com" },
   robots: {
     index: true, follow: true, nocache: false,
     googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
@@ -42,7 +43,7 @@ export const metadata = {
     other: { "msvalidate.01": ["REPLACE_WITH_BING_WEBMASTER_CODE"] },
   },
   openGraph: {
-    type: "website", locale: "en_IN", url: "https://bsmartdresses.in",
+    type: "website", locale: "en_IN", url: "https://bsmartdresses.com",
     siteName: "B'Smart Dresses Bathinda",
     title: "B'Smart Dresses - Premium School Uniforms | Bathinda, Punjab",
     description: "Order quality school uniforms online from B'Smart Dresses, Bathinda. Serving DPS, St. Xavier, St. Joseph, Silver Oaks, DAV & 10+ top schools.",
@@ -57,7 +58,7 @@ export const metadata = {
   icons: { icon: "/logo.png", apple: "/logo.png", shortcut: "/logo.png" },
   manifest: "/manifest.json",
   applicationName: "B'Smart Dresses",
-  authors: [{ name: "B'Smart Dresses Bathinda", url: "https://bsmartdresses.in" }],
+  authors: [{ name: "B'Smart Dresses Bathinda", url: "https://bsmartdresses.com" }],
   creator: "B'Smart Dresses Bathinda",
   publisher: "B'Smart Dresses Bathinda",
   category: "Shopping / School Uniforms",
@@ -86,9 +87,9 @@ const jsonLd = {
   "@type": "ClothingStore",
   name: "B'Smart Dresses",
   alternateName: ["BSmart Dresses", "B Smart Dresses Bathinda"],
-  url: "https://bsmartdresses.in",
-  logo: "https://bsmartdresses.in/logo.png",
-  image: "https://bsmartdresses.in/logo.png",
+  url: "https://bsmartdresses.com",
+  logo: "https://bsmartdresses.com/logo.png",
+  image: "https://bsmartdresses.com/logo.png",
   description: "B'Smart Dresses is Bathinda's trusted school uniform store offering premium quality uniforms for top schools in Punjab with fast doorstep delivery.",
   telephone: "+91-XXXXXXXXXX",
   priceRange: "Rs",
@@ -105,11 +106,11 @@ const jsonLd = {
   geo: { "@type": "GeoCoordinates", latitude: 30.211, longitude: 74.9455 },
   openingHoursSpecification: [{
     "@type": "OpeningHoursSpecification",
-    dayOfWeek: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+    dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
     opens: "10:00",
     closes: "19:00",
   }],
-  sameAs: ["https://bsmartdresses.in"],
+  sameAs: ["https://bsmartdresses.com"],
   hasOfferCatalog: {
     "@type": "OfferCatalog",
     name: "School Uniforms",
@@ -134,12 +135,14 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="min-h-screen w-full bg-[#FEF8E7] font-sans antialiased text-navy-800 selection:bg-accent/40">
-        <NotificationProvider>
-          <CartProvider>
-            {children}
-            <NotificationToast />
-          </CartProvider>
-        </NotificationProvider>
+        <AuthProvider>
+          <NotificationProvider>
+            <CartProvider>
+              {children}
+              <NotificationToast />
+            </CartProvider>
+          </NotificationProvider>
+        </AuthProvider>
       </body>
     </html>
   );
