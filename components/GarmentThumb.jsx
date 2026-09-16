@@ -17,8 +17,7 @@ export default function GarmentThumb({ className = "", tone = "navy", label, ima
         <img
           src={imageSrc}
           alt={label || "Product image"}
-          className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105 filter contrast-105"
-          style={{ mixBlendMode: 'multiply' }}
+          className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
         />
       </div>
     );

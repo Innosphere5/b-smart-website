@@ -38,10 +38,9 @@ export default function ProductCard({ item }) {
                 decoding="async"
                 onLoad={() => setImageLoaded(true)}
                 onError={() => setImageError(true)}
-                className={`h-full w-full object-contain rounded-lg sm:rounded-xl transition-all duration-500 ease-out group-hover:scale-105 filter contrast-105 ${
+                className={`h-full w-full object-contain rounded-lg sm:rounded-xl transition-all duration-500 ease-out group-hover:scale-105 ${
                   imageLoaded ? "opacity-100 scale-100" : "opacity-0 scale-95"
                 }`}
-                style={{ mixBlendMode: "multiply" }}
               />
             ) : (
               <GarmentThumb
@@ -99,7 +98,7 @@ export default function ProductCard({ item }) {
               className={`h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full ${
                 item.stockQuantity === 0 || item.inStock === false
                   ? "bg-red-500"
-                  : (item.stockQuantity ?? 50) < 15 || item.stock === "low"
+                  : (item.stockQuantity !== undefined && item.stockQuantity <= 2) || item.stock === "low"
                   ? "bg-amber-500 animate-pulse"
                   : "bg-emerald-500"
               }`}
@@ -107,8 +106,8 @@ export default function ProductCard({ item }) {
             <span className="text-[#7F1D1D]">
               {item.stockQuantity === 0 || item.inStock === false
                 ? "Out of Stock"
-                : (item.stockQuantity ?? 50) < 15 || item.stock === "low"
-                ? `Low Stock (${item.stockQuantity ?? 8})`
+                : (item.stockQuantity !== undefined && item.stockQuantity <= 2) || item.stock === "low"
+                ? `Low Stock (${item.stockQuantity ?? 2} left)`
                 : `In Stock`}
             </span>
           </div>

@@ -18,6 +18,7 @@ function mapFromDb(row) {
     sizes: row.sizes ? (typeof row.sizes === 'string' ? JSON.parse(row.sizes) : row.sizes) : ['28', '30', '32', '34', '36'],
     sizesText: row.sizes_text || row.sizesText || 'Multiple Sizes',
     sizePrices: row.size_prices ? (typeof row.size_prices === 'string' ? JSON.parse(row.size_prices) : row.size_prices) : {},
+    sizeStocks: row.size_stocks ? (typeof row.size_stocks === 'string' ? JSON.parse(row.size_stocks) : row.size_stocks) : (row.sizeStocks || {}),
     inStock: stock > 0 && row.in_stock !== false,
     stockQuantity: stock,
     createdAt: row.created_at || new Date().toISOString()

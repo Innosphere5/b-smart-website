@@ -53,6 +53,11 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (cartSubtotal < 500) {
+      setErrorMsg("Minimum order amount is ₹500 to complete your order. Delivery is always FREE!");
+      return;
+    }
+
     if (!formData.firstName.trim() || !formData.lastName.trim()) {
       setErrorMsg("Please enter your full name.");
       return;
@@ -96,8 +101,8 @@ export default function CheckoutPage() {
         imageSrc: item.imageSrc,
       })),
       subtotal: cartSubtotal,
-      deliveryFee: deliveryFee,
-      totalAmount: cartTotal,
+      deliveryFee: 0,
+      totalAmount: cartSubtotal,
       adminNotes: formData.notes.trim()
     };
 
@@ -359,7 +364,6 @@ export default function CheckoutPage() {
                       src={item.imageSrc || "/prod-shirt.jpg"}
                       alt={item.name}
                       className="h-full w-full object-contain"
-                      style={{ mixBlendMode: 'multiply' }}
                     />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -383,7 +387,7 @@ export default function CheckoutPage() {
               <div className="flex justify-between">
                 <dt>Delivery</dt>
                 <dd className="font-bold text-[#047857]">
-                  {deliveryFee === 0 ? "FREE" : `₹${deliveryFee.toFixed(2)}`}
+                  FREE (Universal)
                 </dd>
               </div>
               <div className="flex justify-between">
@@ -397,9 +401,15 @@ export default function CheckoutPage() {
               <span className="text-lg sm:text-xl font-black text-[#9F1239]">₹{cartTotal.toFixed(2)}</span>
             </div>
 
+            {cartSubtotal < 500 && (
+              <div className="mt-3 text-[11px] font-bold text-amber-800 bg-amber-50 p-2.5 rounded-lg border border-amber-300 text-center">
+                ⚠️ Minimum order amount is ₹500 to place an order. Add ₹{(500 - cartSubtotal).toFixed(2)} more.
+              </div>
+            )}
+
             <button
               type="submit"
-              disabled={loading || cartItems.length === 0}
+              disabled={loading || cartItems.length === 0 || cartSubtotal < 500}
               className="btn-primary mt-4 sm:mt-6 w-full py-3 sm:py-4 text-xs sm:text-base font-black shadow-lg hover:shadow-xl transition cursor-pointer flex items-center justify-center gap-2"
             >
               {loading ? (
@@ -408,7 +418,7 @@ export default function CheckoutPage() {
                 </>
               ) : (
                 <>
-                  <CheckCircle2 size={16} /> Place Order ✓
+                  <CheckCircle2 size={16} /> Place Order (Free Delivery) ✓
                 </>
               )}
             </button>

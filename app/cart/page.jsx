@@ -220,7 +220,6 @@ export default function CartPage() {
                         src={item.imageSrc || "/prod-shirt.jpg"}
                         alt={item.name}
                         className="h-full w-full object-contain"
-                        style={{ mixBlendMode: 'multiply' }}
                       />
                     </div>
 
@@ -302,14 +301,14 @@ export default function CartPage() {
               <div className="flex justify-between items-center">
                 <dt>Home Delivery</dt>
                 <dd className="font-black text-[#047857]">
-                  {deliveryFee === 0 ? "FREE (Min ₹500)" : `₹${deliveryFee.toFixed(2)}`}
+                  FREE (Universal)
                 </dd>
               </div>
 
               {cartSubtotal < 500 && cartItems.length > 0 && (
-                <p className="text-[10px] sm:text-[11px] font-bold text-amber-800 bg-amber-50 p-2 rounded-lg border border-amber-200">
-                  Add ₹{(500 - cartSubtotal).toFixed(2)} more for FREE Delivery!
-                </p>
+                <div className="text-[11px] font-bold text-amber-900 bg-amber-50 p-2.5 rounded-xl border border-amber-300">
+                  ⚠️ <strong>Minimum order amount is ₹500.</strong> Add ₹{(500 - cartSubtotal).toFixed(2)} more to place your order. Delivery is always <strong>FREE</strong>!
+                </div>
               )}
             </dl>
 
@@ -319,12 +318,29 @@ export default function CartPage() {
             </div>
 
             {cartItems.length > 0 ? (
-              <Link
-                href="/checkout"
-                className="btn-accent mt-4 sm:mt-6 flex w-full items-center justify-center gap-2 py-3 sm:py-4 text-sm sm:text-base font-black shadow-lg hover:shadow-xl transition"
-              >
-                Proceed to Checkout <ArrowRight size={16} />
-              </Link>
+              cartSubtotal >= 500 ? (
+                <Link
+                  href="/checkout"
+                  className="btn-accent mt-4 sm:mt-6 flex w-full items-center justify-center gap-2 py-3 sm:py-4 text-sm sm:text-base font-black shadow-lg hover:shadow-xl transition"
+                >
+                  Proceed to Checkout (Free Delivery) <ArrowRight size={16} />
+                </Link>
+              ) : (
+                <div className="mt-4 sm:mt-6">
+                  <button
+                    disabled
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-100 border border-amber-300 py-3 sm:py-4 text-xs sm:text-sm font-black text-amber-800 cursor-not-allowed shadow-inner"
+                  >
+                    Add ₹{(500 - cartSubtotal).toFixed(2)} more to Checkout (Min ₹500)
+                  </button>
+                  <Link
+                    href="/"
+                    className="mt-2 text-center block text-xs font-black text-[#9F1239] underline hover:text-[#7F1D1D]"
+                  >
+                    + Add more uniform items to cart
+                  </Link>
+                </div>
+              )
             ) : (
               <button
                 disabled

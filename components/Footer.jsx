@@ -65,7 +65,7 @@ export default function Footer() {
 
               <div className="flex items-center gap-2 text-xs font-bold text-white/90 mt-1">
                 <Truck size={14} className="text-[#FACC15] shrink-0" />
-                <span>Fast Doorstep Delivery (Minimum order value Rs.500) </span>
+                <span>Fast Doorstep Delivery — Always FREE (Min. Order Value ₹500)</span>
               </div>
 
               <div className="flex items-center gap-2 text-xs font-bold text-white/90">

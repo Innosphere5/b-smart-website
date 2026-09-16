@@ -268,7 +268,6 @@ export default function OrderConfirmationPage({ searchParams }) {
                           src={item.imageSrc || "/prod-shirt.jpg"}
                           alt={item.name}
                           className="h-full w-full object-contain"
-                          style={{ mixBlendMode: 'multiply' }}
                         />
                       </div>
                       <div>

@@ -136,6 +136,11 @@ export default function ProductDetailPage() {
         ? Object.keys(product.sizePrices)
         : ["28", "30", "32", "34", "36", "38", "40"]);
   const currentPrice = product.sizePrices?.[selectedSize] ?? product.basePrice;
+  const selectedSizeStock = (product.sizeStocks && product.sizeStocks[selectedSize] !== undefined)
+    ? Number(product.sizeStocks[selectedSize])
+    : (product.stockQuantity !== undefined ? Number(product.stockQuantity) : 10);
+  const isOutOfStock = selectedSizeStock === 0 || product.inStock === false;
+  const isLowStock = !isOutOfStock && selectedSizeStock <= 2;
 
   const breadcrumbs = ["Home", product.school || "School Uniforms", product.name];
   const isCloudinary = currentImage && (currentImage.includes("cloudinary.com") || currentImage.startsWith("http"));
@@ -170,8 +175,7 @@ export default function ProductDetailPage() {
                 <img
                   src={currentImage}
                   alt={product.name}
-                  className="h-full max-h-[280px] sm:max-h-[450px] w-full object-contain rounded-xl filter contrast-105"
-                  style={{ mixBlendMode: 'multiply' }}
+                  className="h-full max-h-[280px] sm:max-h-[450px] w-full object-contain rounded-xl"
                 />
               ) : (
                 <GarmentThumb
@@ -195,7 +199,7 @@ export default function ProductDetailPage() {
                     }`}
                   >
                     {img && (img.includes("cloudinary.com") || img.startsWith("http")) ? (
-                      <img src={img} alt={`View ${i + 1}`} className="h-full w-full object-contain p-1" style={{ mixBlendMode: 'multiply' }} />
+                      <img src={img} alt={`View ${i + 1}`} className="h-full w-full object-contain p-1" />
                     ) : (
                       <GarmentThumb tone="white" imageSrc={img} className="h-full w-full" label={`View ${i + 1}`} />
                     )}
@@ -245,6 +249,11 @@ export default function ProductDetailPage() {
                   {sizes.map((size) => {
                     const sizePrice = product.sizePrices?.[size] ?? product.basePrice;
                     const isSelected = selectedSize === size;
+                    const szStock = (product.sizeStocks && product.sizeStocks[size] !== undefined)
+                      ? Number(product.sizeStocks[size])
+                      : (product.stockQuantity !== undefined ? Number(product.stockQuantity) : 10);
+                    const isSzOut = szStock === 0 || product.inStock === false;
+                    const isSzLow = !isSzOut && szStock <= 2;
                     return (
                       <button
                         key={size}
@@ -252,6 +261,10 @@ export default function ProductDetailPage() {
                         className={`flex min-w-[56px] sm:min-w-[70px] px-2.5 sm:px-3.5 py-1.5 sm:py-2 flex-col items-center justify-center rounded-lg sm:rounded-xl border-2 transition-all ${
                           isSelected
                             ? "border-[#9F1239] bg-[#9F1239] text-white shadow-md scale-105"
+                            : isSzOut
+                            ? "border-gray-200 text-gray-400 bg-gray-100 opacity-60"
+                            : isSzLow
+                            ? "border-amber-400 text-[#7F1D1D] bg-amber-50"
                             : "border-[#FCD34D] text-[#7F1D1D] hover:border-[#9F1239] bg-[#FFFDF0]"
                         }`}
                       >
@@ -259,6 +272,16 @@ export default function ProductDetailPage() {
                         <span className={`text-[10px] sm:text-xs font-extrabold mt-0.5 ${isSelected ? "text-[#FEF08A]" : "text-[#9F1239]"}`}>
                           ₹{sizePrice}
                         </span>
+                        {isSzLow && (
+                          <span className={`text-[8px] font-black px-1 rounded mt-0.5 ${isSelected ? "bg-amber-300 text-red-900" : "bg-red-100 text-red-700"}`}>
+                            Low: {szStock}
+                          </span>
+                        )}
+                        {isSzOut && (
+                          <span className="text-[8px] font-bold text-gray-500 mt-0.5">
+                            Sold Out
+                          </span>
+                        )}
                       </button>
                     );
                   })}
@@ -267,6 +290,10 @@ export default function ProductDetailPage() {
                   <span>Selected:</span> <strong className="text-[#9F1239] font-black bg-[#FEFCE8] px-1.5 sm:px-2 py-0.5 rounded border border-[#FCD34D]">Size {selectedSize}</strong>
                   <span>•</span>
                   <span>Rate:</span> <strong className="text-[#9F1239] font-black bg-[#FEFCE8] px-1.5 sm:px-2 py-0.5 rounded border border-[#FCD34D]">₹{currentPrice}</strong>
+                  <span>•</span>
+                  <span>Stock:</span> <strong className={`font-black px-1.5 sm:px-2 py-0.5 rounded border ${isOutOfStock ? "text-red-700 bg-red-50 border-red-300" : isLowStock ? "text-amber-800 bg-amber-50 border-amber-300" : "text-emerald-800 bg-emerald-50 border-emerald-300"}`}>
+                    {isOutOfStock ? "Out of Stock" : isLowStock ? `Low Stock (${selectedSizeStock} left)` : `${selectedSizeStock} available`}
+                  </strong>
                 </p>
               </div>
 
@@ -277,35 +304,45 @@ export default function ProductDetailPage() {
                   <div className="flex w-fit items-center gap-3 sm:gap-4 rounded-lg sm:rounded-xl border-2 border-[#FCD34D] bg-[#FFFDF0] px-3 sm:px-4 py-1.5 sm:py-2 shadow-xs">
                     <button
                       aria-label="Decrease quantity"
+                      disabled={isOutOfStock || qty <= 1}
                       onClick={() => setQty((q) => Math.max(1, q - 1))}
-                      className="text-[#9F1239] hover:text-[#7F1D1D] font-black p-1 transition-colors"
+                      className="text-[#9F1239] hover:text-[#7F1D1D] disabled:text-gray-300 font-black p-1 transition-colors"
                     >
                       <Minus size={16} />
                     </button>
                     <span className="w-6 sm:w-8 text-center text-base sm:text-lg font-black text-[#450A0A]">{qty}</span>
                     <button
                       aria-label="Increase quantity"
-                      onClick={() => setQty((q) => q + 1)}
-                      className="text-[#9F1239] hover:text-[#7F1D1D] font-black p-1 transition-colors"
+                      disabled={isOutOfStock || qty >= selectedSizeStock}
+                      onClick={() => setQty((q) => Math.min(selectedSizeStock, q + 1))}
+                      className="text-[#9F1239] hover:text-[#7F1D1D] disabled:text-gray-300 font-black p-1 transition-colors"
                     >
                       <Plus size={16} />
                     </button>
                   </div>
 
-                  <div className="flex items-center gap-2 rounded-lg sm:rounded-xl bg-[#FEFCE8] border-2 border-[#FCD34D] px-3 sm:px-4 py-2 sm:py-2.5 shadow-xs">
+                  <div className={`flex items-center gap-2 rounded-lg sm:rounded-xl border-2 px-3 sm:px-4 py-2 sm:py-2.5 shadow-xs ${
+                    isOutOfStock
+                      ? "bg-red-50 border-red-300"
+                      : isLowStock
+                      ? "bg-amber-50 border-amber-400"
+                      : "bg-[#FEFCE8] border-[#FCD34D]"
+                  }`}>
                     <span className={`h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full ${
-                      product.stockQuantity === 0 || product.inStock === false
+                      isOutOfStock
                         ? "bg-red-500"
-                        : (product.stockQuantity ?? 50) < 15 || product.stock === "low"
+                        : isLowStock
                         ? "bg-amber-500 animate-pulse"
                         : "bg-emerald-500"
                     }`} />
-                    <span className="text-[10px] sm:text-xs font-black text-[#7F1D1D]">
-                      {product.stockQuantity === 0 || product.inStock === false
-                        ? "Out of Stock"
-                        : (product.stockQuantity ?? 50) < 15 || product.stock === "low"
-                        ? `Low Stock (${product.stockQuantity ?? 8} available)`
-                        : `In Stock (${product.stockQuantity ?? 50} units available)`}
+                    <span className={`text-[10px] sm:text-xs font-black ${
+                      isOutOfStock ? "text-red-700" : isLowStock ? "text-amber-900" : "text-[#7F1D1D]"
+                    }`}>
+                      {isOutOfStock
+                        ? `Out of Stock for Size ${selectedSize}`
+                        : isLowStock
+                        ? `⚠️ Low Stock (Only ${selectedSizeStock} left in Size ${selectedSize}!)`
+                        : `In Stock (${selectedSizeStock} units available for Size ${selectedSize})`}
                     </span>
                   </div>
                 </div>
@@ -335,12 +372,21 @@ export default function ProductDetailPage() {
                   </div>
                 )}
 
-                <button
-                  onClick={handleAddToCart}
-                  className="btn-accent w-full py-4 text-base font-black shadow-lg hover:shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2.5"
-                >
-                  <ShoppingCart size={20} /> Add to Cart (Size {selectedSize} • Total: ₹{currentPrice * qty})
-                </button>
+                {isOutOfStock ? (
+                  <button
+                    disabled
+                    className="w-full py-4 text-base font-black rounded-xl bg-gray-200 text-gray-400 shadow-inner flex items-center justify-center gap-2.5 cursor-not-allowed"
+                  >
+                    Out of Stock in Size {selectedSize}
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleAddToCart}
+                    className="btn-accent w-full py-4 text-base font-black shadow-lg hover:shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2.5"
+                  >
+                    <ShoppingCart size={20} /> Add to Cart (Size {selectedSize} • Total: ₹{currentPrice * qty})
+                  </button>
+                )}
               </div>
 
               {/* Mobile "Added" feedback */}
@@ -387,10 +433,15 @@ export default function ProductDetailPage() {
             <p className="text-sm font-black text-[#9F1239]">₹{currentPrice * qty} <span className="text-[10px] font-bold text-gray-500">Size {selectedSize} × {qty}</span></p>
           </div>
           <button
+            disabled={isOutOfStock}
             onClick={handleAddToCart}
-            className="flex items-center gap-1.5 rounded-xl bg-[#FACC15] px-4 py-2.5 text-xs font-black text-[#7F1D1D] shadow-md hover:bg-[#EAB308] transition-all shrink-0"
+            className={`flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-black shadow-md transition-all shrink-0 ${
+              isOutOfStock
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-[#FACC15] text-[#7F1D1D] hover:bg-[#EAB308]"
+            }`}
           >
-            <ShoppingCart size={16} /> Add to Cart
+            <ShoppingCart size={16} /> {isOutOfStock ? "Out of Stock" : "Add to Cart"}
           </button>
         </div>
       </div>
