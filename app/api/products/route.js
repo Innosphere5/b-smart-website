@@ -4,10 +4,23 @@ import { supabase } from '@/lib/supabase';
 function mapFromDb(row) {
   if (!row) return null;
   const stock = Number(row.stock_quantity ?? row.stockQuantity ?? 50);
+  let category = row.category || 'General';
+  const lowerCat = category.toLowerCase();
+  const lowerName = (row.name || '').toLowerCase();
+  if (lowerCat.includes('accessories') && (lowerCat.includes('tie') || lowerCat.includes('belt'))) {
+    if (lowerName.includes('tie')) {
+      category = 'Tie';
+    } else if (lowerName.includes('belt')) {
+      category = 'Belt';
+    } else {
+      category = 'Accessories';
+    }
+  }
+
   return {
     id: row.id,
     name: row.name,
-    category: row.category || 'General',
+    category,
     school: row.school || 'General School',
     applicableClass: row.applicable_class || row.applicableClass || 'All Classes',
     description: row.description || row.details || '',

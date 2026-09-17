@@ -74,18 +74,29 @@ export default function HomePage() {
 
   // Garment category tabs instead of generic Boys/Girls Uniform
   const categories = useMemo(() => {
-    const baseTabs = ["All", "Blazer", "Shirt", "Pant", "Sweater"];
-    // Collect any other unique categories from loaded products, excluding boy/girl uniform
+    // Individual tabs: Blazer, Shirt, Pant, Sweater, Tie, Belt, Accessories
+    const baseTabs = ["All", "Blazer", "Shirt", "Pant", "Sweater", "Tie", "Belt", "Accessories"];
+    // Collect any other unique categories from loaded products (e.g. Socks, Jacket), excluding boy/girl uniform
     const extra = new Set();
     products.forEach((p) => {
       if (p.category) {
-        const lower = p.category.toLowerCase().trim();
-        if (
-          !lower.includes("boy") &&
-          !lower.includes("girl") &&
-          !baseTabs.some((t) => lower.includes(t.toLowerCase()))
-        ) {
-          extra.add(p.category);
+        const cat = p.category.trim();
+        const lower = cat.toLowerCase();
+
+        if (lower.includes("boy") || lower.includes("girl")) return;
+
+        // Exclude any combined legacy strings so it never shows combined tab
+        if (lower.includes("accessories") && (lower.includes("tie") || lower.includes("belt"))) {
+          return;
+        }
+
+        const matchedBase = baseTabs.some((t) => {
+          const tLower = t.toLowerCase();
+          return lower === tLower || (tLower === "blazer" && (lower.includes("coat") || lower.includes("blazer")));
+        });
+
+        if (!matchedBase) {
+          extra.add(cat);
         }
       }
     });
