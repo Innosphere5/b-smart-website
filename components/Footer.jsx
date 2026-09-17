@@ -98,7 +98,7 @@ export default function Footer() {
                 <MapPin size={14} /> Full Store Address
               </div>
               <p className="font-extrabold text-white leading-relaxed pl-5">
-                #MCB-Z304654, Dr. Mela Ram Hospital Road, Amrik Singh Road, Bathinda. (PB)
+                #MCB-Z304654, Dr. Mela Ram Hospital Road, Amrik Singh Road, Bathinda. (PB) 151001
               </p>
             </div>
           </div>

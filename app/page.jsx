@@ -26,17 +26,17 @@ import {
 import { getLiveProducts, getCachedProducts } from "@/lib/api";
 
 const SCHOOLS = [
-  { name: "Delhi Public School, Bathinda", tag: "All Grades", Icon: Landmark, highlighted: true },
-  { name: "St. Xavier School, Bathinda", tag: "Boys & Girls", Icon: ShieldCheck },
+  { name: "Delhi Public School, Bathinda", tag: "All Classes", Icon: Landmark, highlighted: true },
+  { name: "St. Xavier School, Bathinda", tag: "All Classes", Icon: ShieldCheck },
   { name: "St. Joseph School, Bathinda", tag: "All Classes", Icon: GraduationCap },
-  { name: "Silver Oaks School, Bathinda", tag: "All Grades", Icon: BookOpen },
-  { name: "Silver Oaks Global School, Bathinda", tag: "All Grades", Icon: Layers },
-  { name: "St. Paul's School, Bathinda", tag: "Boys & Girls", Icon: ShieldCheck },
+  { name: "Silver Oaks School, Bathinda", tag: "All Classes", Icon: BookOpen },
+  { name: "Silver Oaks Global School, Bathinda", tag: "All Classes", Icon: Layers },
+  { name: "St. Paul's School, Bathinda", tag: "All Classes", Icon: ShieldCheck },
   { name: "Xavier World School, Bathinda", tag: "All Classes", Icon: GraduationCap },
-  { name: "St. Kabir Convent School, Bhuchoo Khurd", tag: "All Grades", Icon: BookOpen },
-  { name: "St. Kabir Convent School, Model Town", tag: "All Grades", Icon: BookOpen },
+  { name: "St. Kabir Convent School, Bhuchoo Khurd", tag: "All Classes", Icon: BookOpen },
+  { name: "St. Kabir Convent School, Model Town", tag: "All Classes", Icon: BookOpen },
   { name: "The Sanskaar School, Talwandi Sabo", tag: "All Classes", Icon: Landmark },
-  { name: "DAV Public School, Bathinda", tag: "All Grades", Icon: GraduationCap },
+  { name: "DAV Public School, Bathinda", tag: "All Classes", Icon: GraduationCap },
 ];
 
 export default function HomePage() {
@@ -254,7 +254,7 @@ export default function HomePage() {
 
                   <p className="mt-3 sm:mt-4 max-w-md text-[10px] sm:text-xs md:text-sm leading-relaxed text-yellow-100 font-semibold flex items-start gap-1.5">
                     <span>
-                      📍 <strong className="text-white">Store:-</strong> #MCB-Z304654, Dr. Mela Ram Hospital Road, Amrik Singh Road, Bathinda ( PB ) 151001
+                      📍 <strong className="text-white">Store:-</strong> #MCB-Z304654, Dr. Mela Ram Hospital Road, Amrik Singh Road, Bathinda ( PB ) 151001.
                     </span>
                   </p>
 
