@@ -91,7 +91,7 @@ const jsonLd = {
   logo: "https://bsmartdresses.com/logo.png",
   image: "https://bsmartdresses.com/logo.png",
   description: "B'Smart Dresses is Bathinda's trusted school uniform store offering premium quality uniforms for top schools in Punjab with fast doorstep delivery.",
-  telephone: "+91-XXXXXXXXXX",
+  telephone: "+91-9888388170",
   priceRange: "Rs",
   currenciesAccepted: "INR",
   paymentAccepted: "Cash, UPI, Credit Card, Debit Card",

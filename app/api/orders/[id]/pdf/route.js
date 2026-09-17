@@ -140,7 +140,7 @@ export async function GET(request, { params }) {
             <div class="store-name">B'SMART DRESSES</div>
             <div class="store-sub">Premium School Uniforms & Accessories</div>
             <div class="store-meta">
-              GSTIN: 03ANXPG2252L1ZS | Ph: +91 98883-88170<br>
+              GSTIN: 03ANXPG2252L1ZS | Ph: <a href="tel:9888388170" style="color: #881337; font-weight: 800; text-decoration: underline;">+91 98883-88170</a><br>
               #MCB-Z304654, Dr. Mela Ram Hospital Road, Bathinda (Punjab)
             </div>
           </div>

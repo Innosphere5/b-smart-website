@@ -6,6 +6,8 @@ import { ShoppingCart } from "lucide-react";
 import Badge from "@/components/Badge";
 import GarmentThumb from "@/components/GarmentThumb";
 
+import { cleanProductImageUrl } from "@/lib/api";
+
 // Helper to remove boy/girl uniform tag from the product
 const isBoyGirlUniformTag = (cat) => {
   if (!cat) return false;
@@ -16,16 +18,35 @@ const isBoyGirlUniformTag = (cat) => {
 export default function ProductCard({ item }) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const imageUri = item.imageSrc || item.images?.[0];
+  const rawUri = item.imageSrc || item.images?.[0];
+  const imageUri = cleanProductImageUrl(rawUri);
 
   return (
-    <div className="group flex flex-col justify-between overflow-hidden rounded-xl sm:rounded-2xl border-2 border-[#FCD34D] bg-white p-2.5 sm:p-4 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-[#9F1239] hover:shadow-2xl">
+    <div className="group flex flex-col justify-between overflow-hidden rounded-2xl border-2 border-[#FCD34D] bg-white p-3 sm:p-4 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-[#9F1239] hover:shadow-2xl">
       <div>
+        {/* Top Institutional Header — Clean & Unobtrusive (doesn't cover the product) */}
+        <div className="flex items-center justify-between gap-1.5 mb-2.5">
+          <span className="inline-flex items-center gap-1.5 text-[9.5px] sm:text-[11px] font-black text-[#881337] truncate max-w-[70%] bg-[#FEF2F2] border border-[#FECDD3] px-2 py-0.5 rounded-lg shadow-2xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#9F1239] shrink-0" />
+            <span className="truncate">{item.school}</span>
+          </span>
+          {item.applicableClass && (
+            <span className="text-[8.5px] sm:text-[10px] font-extrabold text-[#7F1D1D] bg-[#FEF9C3] px-2 py-0.5 rounded-md border border-[#FDE047] shrink-0 shadow-2xs">
+              {item.applicableClass}
+            </span>
+          )}
+        </div>
+
         <Link href={`/product/${item.id}`} className="block focus:outline-none">
-          <div className="relative overflow-hidden rounded-lg sm:rounded-xl bg-[#FFFDF0] aspect-square flex items-center justify-center border border-[#FDE047] p-1 sm:p-2">
+          <div
+            className="relative overflow-hidden rounded-xl aspect-square flex items-center justify-center p-3 sm:p-5 border border-slate-200/70 shadow-[inset_0_1px_4px_rgba(0,0,0,0.03)] transition-all duration-300 group-hover:border-[#9F1239]/40"
+            style={{
+              background: "radial-gradient(circle at 50% 32%, #FFFFFF 0%, #F8FAFC 55%, #EEF2F6 100%)",
+            }}
+          >
             {/* Shimmer Placeholder while image loads */}
             {!imageLoaded && !imageError && imageUri && (
-              <div className="shimmer-box absolute inset-0 rounded-lg sm:rounded-xl">
+              <div className="shimmer-box absolute inset-0 rounded-xl">
                 <div className="shimmer-effect" />
               </div>
             )}
@@ -38,9 +59,12 @@ export default function ProductCard({ item }) {
                 decoding="async"
                 onLoad={() => setImageLoaded(true)}
                 onError={() => setImageError(true)}
-                className={`h-full w-full object-contain rounded-lg sm:rounded-xl transition-all duration-500 ease-out group-hover:scale-105 ${
+                className={`h-full w-full object-contain transition-all duration-500 ease-out group-hover:scale-105 ${
                   imageLoaded ? "opacity-100 scale-100" : "opacity-0 scale-95"
                 }`}
+                style={{
+                  filter: "drop-shadow(0 10px 18px rgba(15, 23, 42, 0.08)) drop-shadow(0 2px 4px rgba(15, 23, 42, 0.04)) contrast(1.03) brightness(1.02)",
+                }}
               />
             ) : (
               <GarmentThumb
@@ -50,21 +74,6 @@ export default function ProductCard({ item }) {
                 label={item.name}
               />
             )}
-
-            {/* School & Class Badges with Floating Soft Shadow — mobile-adapted */}
-            <div className="absolute left-1 sm:left-2 top-1 sm:top-2 flex flex-col gap-0.5 sm:gap-1 items-start max-w-[88%] z-10 pointer-events-none">
-              <Badge
-                variant="school"
-                className="max-w-full truncate text-[7.5px] xs:text-[8px] sm:text-[10px] px-1.5 sm:px-2.5 py-0.5 bg-[#FEFCE8]/95 backdrop-blur-xs border border-[#FCD34D]/90 shadow-xs"
-              >
-                {item.school}
-              </Badge>
-              {item.applicableClass && (
-                <span className="rounded-full bg-[#7F1D1D]/90 backdrop-blur-xs px-1.5 sm:px-2 py-0.5 text-[6.5px] xs:text-[7.5px] sm:text-[9.5px] font-black text-white shadow-xs tracking-tight">
-                  {item.applicableClass}
-                </span>
-              )}
-            </div>
           </div>
         </Link>
 

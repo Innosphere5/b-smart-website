@@ -9,7 +9,7 @@ import GarmentThumb from "@/components/GarmentThumb";
 import Badge from "@/components/Badge";
 import { ShoppingCart, Minus, Plus, Cloud, CheckCircle2, ShieldCheck, Check, ArrowRight } from "lucide-react";
 import { getProductById } from "@/data/products";
-import { getLiveProductById, getCachedProducts } from "@/lib/api";
+import { getLiveProductById, getCachedProducts, cleanProductImageUrl } from "@/lib/api";
 import { useCart } from "@/lib/CartContext";
 import ScrollProgressBar from "@/components/ScrollProgressBar";
 
@@ -129,7 +129,8 @@ export default function ProductDetailPage() {
   }
 
   const galleryImages = product.images && product.images.length > 0 ? product.images : [product.imageSrc];
-  const currentImage = galleryImages[activeThumb] || galleryImages[0] || product.imageSrc;
+  const rawCurrentImage = galleryImages[activeThumb] || galleryImages[0] || product.imageSrc;
+  const currentImage = cleanProductImageUrl(rawCurrentImage);
   const sizes = Array.isArray(product.sizes) && product.sizes.length > 0
     ? product.sizes
     : (product.sizePrices && Object.keys(product.sizePrices).length > 0
@@ -169,13 +170,21 @@ export default function ProductDetailPage() {
         <div className="mt-4 sm:mt-6 grid gap-6 sm:gap-10 md:grid-cols-2 rounded-2xl sm:rounded-3xl border-2 border-[#FCD34D] bg-white p-4 sm:p-6 md:p-10 shadow-lg">
           {/* Gallery — horizontal thumbs on mobile, vertical on desktop */}
           <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
-            {/* Main Image */}
-            <div className="relative flex-1 min-h-[280px] sm:min-h-[400px] overflow-hidden rounded-xl sm:rounded-2xl bg-[#FFFDF0] border-2 border-[#FDE047] flex items-center justify-center p-3 sm:p-4 order-1 md:order-2">
+            {/* Main Image Stage */}
+            <div
+              className="relative flex-1 min-h-[280px] sm:min-h-[400px] overflow-hidden rounded-xl sm:rounded-2xl border border-slate-200/90 flex items-center justify-center p-4 sm:p-6 order-1 md:order-2 shadow-inner"
+              style={{
+                background: "radial-gradient(circle at 50% 38%, #FFFFFF 0%, #F8FAFC 55%, #EDF2F7 100%)",
+              }}
+            >
               {isCloudinary ? (
                 <img
                   src={currentImage}
                   alt={product.name}
-                  className="h-full max-h-[280px] sm:max-h-[450px] w-full object-contain rounded-xl"
+                  className="h-full max-h-[280px] sm:max-h-[450px] w-full object-contain rounded-xl transition-transform duration-300 hover:scale-105"
+                  style={{
+                    filter: "drop-shadow(0 10px 20px rgba(15, 23, 42, 0.09)) drop-shadow(0 3px 6px rgba(15, 23, 42, 0.04))",
+                  }}
                 />
               ) : (
                 <GarmentThumb
@@ -199,7 +208,7 @@ export default function ProductDetailPage() {
                     }`}
                   >
                     {img && (img.includes("cloudinary.com") || img.startsWith("http")) ? (
-                      <img src={img} alt={`View ${i + 1}`} className="h-full w-full object-contain p-1" />
+                      <img src={cleanProductImageUrl(img)} alt={`View ${i + 1}`} className="h-full w-full object-contain p-1" />
                     ) : (
                       <GarmentThumb tone="white" imageSrc={img} className="h-full w-full" label={`View ${i + 1}`} />
                     )}

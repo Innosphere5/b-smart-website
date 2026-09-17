@@ -135,14 +135,20 @@ export default function HomePage() {
           name.includes("sweater")
         );
       }
-      if (sel.includes("accessories") || sel.includes("tie")) {
+      if (sel.includes("accessories")) {
         return (
-          cat.includes("accessories") ||
-          cat.includes("tie") ||
-          cat.includes("belt") ||
-          name.includes("tie") ||
-          name.includes("belt")
+          (cat.includes("accessories") || name.includes("accessories")) &&
+          !cat.includes("tie") &&
+          !cat.includes("belt") &&
+          !name.includes("tie") &&
+          !name.includes("belt")
         );
+      }
+      if (sel.includes("tie")) {
+        return cat.includes("tie") || name.includes("tie");
+      }
+      if (sel.includes("belt")) {
+        return cat.includes("belt") || name.includes("belt");
       }
 
       return cat === sel || cat.includes(sel) || name.includes(sel);
@@ -156,6 +162,24 @@ export default function HomePage() {
       target.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  // Merge predefined schools with any newly added schools from products/admin
+  const displaySchools = useMemo(() => {
+    const existing = new Set(SCHOOLS.map((s) => s.name.toLowerCase()));
+    const dynamicSchools = [];
+    products.forEach((p) => {
+      if (p.school && p.school !== "General School" && !existing.has(p.school.toLowerCase())) {
+        existing.add(p.school.toLowerCase());
+        dynamicSchools.push({
+          name: p.school,
+          tag: "All Classes",
+          Icon: GraduationCap,
+          highlighted: false,
+        });
+      }
+    });
+    return [...SCHOOLS, ...dynamicSchools];
+  }, [products]);
 
   return (
     <main className="app-frame bg-[#FEF8E7] mobile-bottom-pad relative selection:bg-[#FACC15]/60 selection:text-[#450A0A]">
@@ -294,7 +318,7 @@ export default function HomePage() {
           </ScrollReveal>
 
           <div className="mt-6 sm:mt-8 grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
-            {SCHOOLS.map(({ name, tag, Icon, highlighted }, idx) => {
+            {displaySchools.map(({ name, tag, Icon, highlighted }, idx) => {
               const isSelected = selectedSchool === name;
 
               return (

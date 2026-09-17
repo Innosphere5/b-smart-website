@@ -5,7 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   Search, User, ShoppingCart, Sparkles,
-  Menu, X, Home, ShoppingBag, Package, LayoutGrid, ChevronDown, LogOut
+  Menu, X, Home, ShoppingBag, Package, LayoutGrid, ChevronDown, LogOut, Phone
 } from "lucide-react";
 import { useCart } from "@/lib/CartContext";
 import { useAuth } from "@/lib/AuthContext";
@@ -60,12 +60,20 @@ export default function Header({ activeHref = "/", cartCount: propCartCount }) {
   return (
     <>
       <header className="w-full bg-[#881337] text-white shadow-lg border-b-4 border-[#FACC15]">
-        {/* Top Notice Banner */}
-        <div className="bg-[#9F1239] text-[#FEF08A] px-3 py-1.5 text-center text-[10px] sm:text-xs font-black flex items-center justify-center border-b border-[#BE123C]">
+        {/* Top Notice Banner with Click-to-Call Helpline */}
+        <div className="bg-[#9F1239] text-[#FEF08A] px-3 py-1.5 text-center text-[10px] sm:text-xs font-black flex flex-wrap items-center justify-center sm:justify-between border-b border-[#BE123C] max-w-7xl mx-auto gap-2">
           <span className="flex items-center gap-1 truncate">
             <Sparkles size={12} className="text-[#FACC15] shrink-0" />
             ★ Best Quality SCHOOL UNIFORMS. FAST DOORSTEP DELIVERY.
           </span>
+          <a
+            href="tel:9888388170"
+            className="inline-flex items-center gap-1.5 rounded-full bg-[#7F1D1D] hover:bg-[#FACC15] text-[#FACC15] hover:text-[#7F1D1D] px-2.5 py-0.5 border border-[#FACC15]/40 transition-all font-black text-[10px] sm:text-[11px] shadow-xs"
+            title="Call Store Helpline"
+          >
+            <Phone size={11} className="shrink-0" />
+            <span>Call Helpline: 9888388170</span>
+          </a>
         </div>
 
         <div className="mx-auto flex max-w-7xl items-center gap-3 sm:gap-6 px-3 sm:px-6 py-2.5 md:py-3.5 md:px-10">
@@ -335,6 +343,13 @@ export default function Header({ activeHref = "/", cartCount: propCartCount }) {
 
             {/* Drawer Footer */}
             <div className="absolute bottom-0 left-0 right-0 px-5 py-4 border-t border-white/15 bg-[#7F1D1D]">
+              <a
+                href="tel:9888388170"
+                className="flex items-center justify-center gap-2 w-full py-2.5 mb-2.5 rounded-xl bg-[#FACC15] text-[#881337] font-black text-xs shadow-sm hover:bg-[#FDE047] transition"
+              >
+                <Phone size={14} />
+                <span>Call Store Helpline: 9888388170</span>
+              </a>
               <p className="text-[10px] font-bold text-yellow-100/80 text-center">
                 GSTIN: 03ANXPG2252L1ZS
               </p>
