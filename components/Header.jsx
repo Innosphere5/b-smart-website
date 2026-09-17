@@ -149,6 +149,7 @@ export default function Header({ activeHref = "/", cartCount: propCartCount }) {
                       alt={user.displayName || "User"}
                       width={22}
                       height={22}
+                      unoptimized
                       className="rounded-full object-cover border border-[#FACC15]"
                     />
                   ) : (
@@ -274,6 +275,7 @@ export default function Header({ activeHref = "/", cartCount: propCartCount }) {
                         alt="User"
                         width={28}
                         height={28}
+                        unoptimized
                         className="rounded-full object-cover border border-[#FACC15]"
                       />
                     ) : (

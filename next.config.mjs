@@ -15,6 +15,18 @@ const nextConfig = {
         protocol: 'https',
         hostname: '*.supabase.co',
       },
+      {
+        protocol: 'https',
+        hostname: '*.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.google.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'unavatar.io',
+      },
     ],
   },
 

@@ -61,6 +61,33 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     // Listen for token updates (including refresh and initial load)
     const unsubscribe = onIdTokenChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        let photo = currentUser.photoURL;
+        if (!photo) {
+          const providerWithPhoto = currentUser.providerData?.find((p) => p.photoURL);
+          if (providerWithPhoto) photo = providerWithPhoto.photoURL;
+        }
+        if (!photo && typeof window !== "undefined") {
+          try {
+            const cached = localStorage.getItem(`bsmart_avatar_${currentUser.uid}`);
+            if (cached) photo = cached;
+          } catch (e) {}
+        }
+        if (photo && photo !== currentUser.photoURL) {
+          currentUser = {
+            ...currentUser,
+            photoURL: photo,
+            displayName: currentUser.displayName,
+            email: currentUser.email,
+            uid: currentUser.uid,
+            providerData: currentUser.providerData,
+            metadata: currentUser.metadata,
+            getIdToken: (...args) => currentUser.getIdToken(...args),
+            reload: (...args) => currentUser.reload(...args),
+          };
+        }
+      }
+
       setUser(currentUser);
       await syncSessionCookie(currentUser);
       setLoading(false);
@@ -165,7 +192,30 @@ export function AuthProvider({ children }) {
     if (!auth.currentUser) return;
     try {
       await updateProfile(auth.currentUser, updates);
-      setUser({ ...auth.currentUser });
+      const current = auth.currentUser;
+      const updatedUser = {
+        ...current,
+        uid: current.uid,
+        email: current.email,
+        displayName: updates.displayName !== undefined ? updates.displayName : current.displayName,
+        photoURL: updates.photoURL !== undefined ? updates.photoURL : current.photoURL,
+        providerData: current.providerData,
+        metadata: current.metadata,
+        getIdToken: (...args) => current.getIdToken(...args),
+        reload: (...args) => current.reload(...args),
+      };
+      setUser(updatedUser);
+      if (typeof window !== "undefined" && updates.photoURL !== undefined) {
+        try {
+          if (updates.photoURL) {
+            localStorage.setItem(`bsmart_avatar_${current.uid}`, updates.photoURL);
+          } else {
+            localStorage.removeItem(`bsmart_avatar_${current.uid}`);
+          }
+        } catch (e) {}
+      }
+      await syncSessionCookie(current);
+      return updatedUser;
     } catch (err) {
       const msg = formatAuthError(err);
       setError(msg);
