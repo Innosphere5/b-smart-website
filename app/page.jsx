@@ -497,11 +497,10 @@ export default function HomePage() {
                   <button
                     key={cls}
                     onClick={() => setSelectedClass(cls)}
-                    className={`rounded-xl px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-black transition-all duration-200 active:scale-95 ${
-                      selectedClass === cls
+                    className={`rounded-xl px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-black transition-all duration-200 active:scale-95 ${selectedClass === cls
                         ? "bg-[#7F1D1D] text-white shadow-md border-2 border-[#FACC15]"
                         : "bg-white text-gray-700 hover:bg-[#FEF9C3] border border-[#FCD34D]"
-                    }`}
+                      }`}
                   >
                     {cls}
                   </button>
