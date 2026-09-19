@@ -115,3 +115,29 @@ export async function PUT(request, { params }) {
     );
   }
 }
+
+export async function DELETE(request, { params }) {
+  try {
+    const { id } = await params;
+
+    // Delete from Supabase
+    const { error } = await supabase
+      .from('orders')
+      .delete()
+      .or(`id.eq.${id},order_number.eq.${id}`);
+
+    if (error) {
+      console.warn('Supabase delete error in user_panel:', error.message);
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `Order ${id} deleted successfully`
+    });
+  } catch (err) {
+    return NextResponse.json(
+      { success: false, message: err.message || 'Error deleting order' },
+      { status: 500 }
+    );
+  }
+}
