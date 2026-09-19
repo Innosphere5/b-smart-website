@@ -5,9 +5,10 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   Search, User, ShoppingCart, Sparkles,
-  Menu, X, Home, ShoppingBag, Package, LayoutGrid
+  Menu, X, Home, ShoppingBag, Package, LayoutGrid, ChevronDown, LogOut, Phone
 } from "lucide-react";
 import { useCart } from "@/lib/CartContext";
+import { useAuth } from "@/lib/AuthContext";
 import NotificationCenter from "@/components/NotificationCenter";
 
 const NAV_LINKS = [
@@ -33,6 +34,8 @@ export default function Header({ activeHref = "/", cartCount: propCartCount }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const pathname = usePathname();
   const [currentHash, setCurrentHash] = useState("");
+  const { user, logout } = useAuth();
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   // Track hash changes for section-anchored tabs like Catalog (#featured)
   useEffect(() => {
@@ -57,12 +60,20 @@ export default function Header({ activeHref = "/", cartCount: propCartCount }) {
   return (
     <>
       <header className="w-full bg-[#881337] text-white shadow-lg border-b-4 border-[#FACC15]">
-        {/* Top Notice Banner */}
-        <div className="bg-[#9F1239] text-[#FEF08A] px-3 py-1.5 text-center text-[10px] sm:text-xs font-black flex items-center justify-center border-b border-[#BE123C]">
+        {/* Top Notice Banner with Click-to-Call Helpline */}
+        <div className="bg-[#9F1239] text-[#FEF08A] px-3 py-1.5 text-center text-[10px] sm:text-xs font-black flex flex-wrap items-center justify-center sm:justify-between border-b border-[#BE123C] max-w-7xl mx-auto gap-2">
           <span className="flex items-center gap-1 truncate">
             <Sparkles size={12} className="text-[#FACC15] shrink-0" />
             ★ Best Quality SCHOOL UNIFORMS. FAST DOORSTEP DELIVERY.
           </span>
+          <a
+            href="tel:9888388170"
+            className="inline-flex items-center gap-1.5 rounded-full bg-[#7F1D1D] hover:bg-[#FACC15] text-[#FACC15] hover:text-[#7F1D1D] px-2.5 py-0.5 border border-[#FACC15]/40 transition-all font-black text-[10px] sm:text-[11px] shadow-xs"
+            title="Call Store Helpline"
+          >
+            <Phone size={11} className="shrink-0" />
+            <span>Call Helpline: 9888388170</span>
+          </a>
         </div>
 
         <div className="mx-auto flex max-w-7xl items-center gap-3 sm:gap-6 px-3 sm:px-6 py-2.5 md:py-3.5 md:px-10">
@@ -123,9 +134,87 @@ export default function Header({ activeHref = "/", cartCount: propCartCount }) {
           {/* Right Icons */}
           <div className="ml-auto flex items-center gap-1.5 sm:gap-2.5 md:gap-4 md:ml-0">
             <NotificationCenter />
-            <Link href="/account" aria-label="Account" className="hidden sm:flex text-white/90 hover:text-[#FACC15] transition-colors p-1.5 rounded-lg hover:bg-white/10">
-              <User size={20} />
-            </Link>
+
+            {/* Desktop Account / Sign In */}
+            {user ? (
+              <div className="relative hidden sm:block">
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 px-2.5 py-1.5 transition text-xs font-black text-white border border-white/20 cursor-pointer"
+                  aria-label="User menu"
+                >
+                  {user.photoURL ? (
+                    <Image
+                      src={user.photoURL}
+                      alt={user.displayName || "User"}
+                      width={22}
+                      height={22}
+                      unoptimized
+                      className="rounded-full object-cover border border-[#FACC15]"
+                    />
+                  ) : (
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#FACC15] text-[#881337] text-[10px] font-black">
+                      {(user.displayName?.[0] || user.email?.[0] || "U").toUpperCase()}
+                    </span>
+                  )}
+                  <span className="max-w-[85px] truncate text-xs font-bold text-white">
+                    {user.displayName?.split(" ")[0] || "Account"}
+                  </span>
+                  <ChevronDown size={14} className="text-[#FACC15]" />
+                </button>
+
+                {userMenuOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setUserMenuOpen(false)}
+                    />
+                    <div className="absolute right-0 mt-2 w-48 rounded-2xl border-2 border-[#FCD34D] bg-white p-2 text-gray-800 shadow-2xl z-50 animate-in fade-in zoom-in-95">
+                      <div className="px-3 py-2 border-b border-gray-100">
+                        <p className="text-xs font-black text-[#881337] truncate">
+                          {user.displayName || "Parent Account"}
+                        </p>
+                        <p className="text-[10px] font-semibold text-gray-500 truncate">
+                          {user.email}
+                        </p>
+                      </div>
+                      <Link
+                        href="/account"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold hover:bg-[#FEFCE8] text-gray-700 hover:text-[#881337] transition"
+                      >
+                        <User size={15} /> My Profile
+                      </Link>
+                      <Link
+                        href="/orders"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold hover:bg-[#FEFCE8] text-gray-700 hover:text-[#881337] transition"
+                      >
+                        <Package size={15} /> My Orders
+                      </Link>
+                      <button
+                        onClick={() => {
+                          setUserMenuOpen(false);
+                          logout();
+                        }}
+                        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-rose-700 hover:bg-rose-50 transition cursor-pointer"
+                      >
+                        <LogOut size={15} /> Sign Out
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                aria-label="Sign In"
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-white/30 bg-white/10 hover:bg-white/20 px-3 py-1.5 text-xs font-black text-white transition cursor-pointer"
+              >
+                <User size={15} className="text-[#FACC15]" />
+                <span>Sign In</span>
+              </Link>
+            )}
             <Link href="/cart" aria-label="Cart" className="relative text-white/90 hover:text-[#FACC15] transition-colors p-1.5 rounded-lg hover:bg-white/10">
               <ShoppingCart size={20} />
               {cartCount > 0 && (
@@ -175,6 +264,57 @@ export default function Header({ activeHref = "/", cartCount: propCartCount }) {
               </div>
             </div>
 
+            {/* Mobile User Status */}
+            <div className="px-4 py-2 border-b border-white/15">
+              {user ? (
+                <div className="flex items-center justify-between rounded-2xl bg-white/10 p-2.5">
+                  <div className="flex items-center gap-2.5">
+                    {user.photoURL ? (
+                      <Image
+                        src={user.photoURL}
+                        alt="User"
+                        width={28}
+                        height={28}
+                        unoptimized
+                        className="rounded-full object-cover border border-[#FACC15]"
+                      />
+                    ) : (
+                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#FACC15] text-[#881337] text-xs font-black">
+                        {(user.displayName?.[0] || user.email?.[0] || "U").toUpperCase()}
+                      </span>
+                    )}
+                    <div className="flex flex-col">
+                      <span className="text-xs font-bold text-white truncate max-w-[130px]">
+                        {user.displayName || "Customer"}
+                      </span>
+                      <span className="text-[10px] text-white/60 truncate max-w-[130px]">
+                        {user.email}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setDrawerOpen(false);
+                      logout();
+                    }}
+                    className="p-1.5 rounded-lg bg-white/10 text-white/80 hover:text-white"
+                    title="Sign Out"
+                  >
+                    <LogOut size={16} />
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={() => setDrawerOpen(false)}
+                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#FACC15] text-[#881337] text-xs font-black shadow-sm"
+                >
+                  <User size={15} />
+                  <span>Sign In / Register</span>
+                </Link>
+              )}
+            </div>
+
             {/* Nav Links */}
             <nav className="px-3 py-2 space-y-1">
               {NAV_LINKS.map((link) => (
@@ -205,6 +345,13 @@ export default function Header({ activeHref = "/", cartCount: propCartCount }) {
 
             {/* Drawer Footer */}
             <div className="absolute bottom-0 left-0 right-0 px-5 py-4 border-t border-white/15 bg-[#7F1D1D]">
+              <a
+                href="tel:9888388170"
+                className="flex items-center justify-center gap-2 w-full py-2.5 mb-2.5 rounded-xl bg-[#FACC15] text-[#881337] font-black text-xs shadow-sm hover:bg-[#FDE047] transition"
+              >
+                <Phone size={14} />
+                <span>Call Store Helpline: 9888388170</span>
+              </a>
               <p className="text-[10px] font-bold text-yellow-100/80 text-center">
                 GSTIN: 03ANXPG2252L1ZS
               </p>

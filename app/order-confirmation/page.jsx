@@ -56,7 +56,7 @@ export default function OrderConfirmationPage({ searchParams }) {
         id: orderId,
         orderNumber: `#${orderId.replace('-', '')}`,
         customerName: "Rahul Sharma",
-        customerMobile: "+91 98765 43210",
+        customerMobile: "+91 98883 88170",
         customerEmail: "rahul.sharma@example.com",
         school: "Delhi Public School",
         deliveryAddress: {
@@ -268,7 +268,6 @@ export default function OrderConfirmationPage({ searchParams }) {
                           src={item.imageSrc || "/prod-shirt.jpg"}
                           alt={item.name}
                           className="h-full w-full object-contain"
-                          style={{ mixBlendMode: 'multiply' }}
                         />
                       </div>
                       <div>
@@ -292,6 +291,25 @@ export default function OrderConfirmationPage({ searchParams }) {
                   ₹{order?.totalAmount || order?.subtotal || 0}
                 </span>
               </div>
+            </div>
+
+            {/* Quick Helpline Support Call Option */}
+            <div className="rounded-2xl border-2 border-[#FCD34D] bg-[#FFFDF0] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#881337] text-[#FACC15] shrink-0">
+                  <Phone size={18} />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-[#7F1D1D]">Need quick help with your uniform delivery?</p>
+                  <p className="text-[11px] font-semibold text-gray-600">Our customer support team is just a phone call away</p>
+                </div>
+              </div>
+              <a
+                href="tel:9888388170"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#881337] hover:bg-[#7F1D1D] px-4 py-2.5 text-xs font-black text-[#FACC15] transition shadow-xs shrink-0"
+              >
+                <Phone size={14} /> Call Helpline: 9888388170
+              </a>
             </div>
 
             {/* Action Bar: PDF Order Form & Continue Shopping */}

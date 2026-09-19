@@ -65,7 +65,7 @@ export default function Footer() {
 
               <div className="flex items-center gap-2 text-xs font-bold text-white/90 mt-1">
                 <Truck size={14} className="text-[#FACC15] shrink-0" />
-                <span>Fast Doorstep Delivery (Minimum order value Rs.500) </span>
+                <span>Fast Doorstep Delivery — Always FREE (Min. Order Value ₹500)</span>
               </div>
 
               <div className="flex items-center gap-2 text-xs font-bold text-white/90">
@@ -98,7 +98,7 @@ export default function Footer() {
                 <MapPin size={14} /> Full Store Address
               </div>
               <p className="font-extrabold text-white leading-relaxed pl-5">
-                #MCB-Z304654, Dr. Mela Ram Hospital Road, Amrik Singh Road, Bathinda. (PB)
+                #MCB-Z304654, Dr. Mela Ram Hospital Road, Amrik Singh Road, Bathinda. (PB) 151001
               </p>
             </div>
           </div>

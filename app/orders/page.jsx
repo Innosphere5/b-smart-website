@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useCart } from "@/lib/CartContext";
 import { useNotifications } from "@/lib/NotificationContext";
+import { useAuth } from "@/lib/AuthContext";
 
 const API_BASE_URL = "";
 
@@ -32,6 +33,7 @@ const SIDEBAR_LINKS = [
 export default function OrdersPage() {
   const { activeOrders, completeOrder } = useCart();
   const { isLiveConnected } = useNotifications();
+  const { user, logout } = useAuth();
   const [completingId, setCompletingId] = useState(null);
 
   const handleComplete = async (orderId) => {
@@ -52,21 +54,34 @@ export default function OrdersPage() {
       <div className="mx-auto grid max-w-7xl gap-8 px-6 py-8 md:grid-cols-4 md:px-10 md:py-10">
         {/* Sidebar */}
         <aside className="h-fit rounded-3xl border-2 border-[#FCD34D] bg-white p-4 shadow-md md:col-span-1">
-          <p className="px-3 py-2 text-sm font-black text-[#7F1D1D]">My Account</p>
+          <div className="px-3 py-2">
+            <p className="text-sm font-black text-[#7F1D1D]">My Account</p>
+            {user?.displayName && (
+              <p className="text-[11px] font-bold text-gray-500 truncate mt-0.5">
+                {user.displayName}
+              </p>
+            )}
+          </div>
           <nav className="mt-1 flex flex-col gap-1">
-            {SIDEBAR_LINKS.map(({ label, Icon, active }) => (
-              <button
-                key={label}
-                className={`flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-left text-xs font-black transition-colors ${
-                  active
-                    ? "bg-[#881337] text-white shadow-sm"
-                    : "text-gray-700 hover:bg-[#FEFCE8]"
-                }`}
-              >
-                <Icon size={16} />
-                {label}
-              </button>
-            ))}
+            <Link
+              href="/orders"
+              className="flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-left text-xs font-black bg-[#881337] text-white shadow-sm"
+            >
+              <Package size={16} /> My Orders
+            </Link>
+            <Link
+              href="/account"
+              className="flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-left text-xs font-black text-gray-700 hover:bg-[#FEFCE8] transition-colors"
+            >
+              <User size={16} /> Profile & Settings
+            </Link>
+            <button
+              type="button"
+              onClick={() => logout()}
+              className="flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-left text-xs font-black text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer mt-2 pt-2 border-t border-gray-100"
+            >
+              <LogOut size={16} /> Sign Out
+            </button>
           </nav>
         </aside>
 

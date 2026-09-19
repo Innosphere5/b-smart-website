@@ -267,14 +267,18 @@ export function CartProvider({ children }) {
     return null;
   };
 
-  // Calculated totals
+  // Calculated totals: Universal Free Delivery & ₹500 Minimum Order
   const cartCount = cartItems.reduce((sum, item) => sum + (item.qty || 1), 0);
   const cartSubtotal = cartItems.reduce(
     (sum, item) => sum + Number(item.price || 0) * Number(item.qty || 1),
     0
   );
-  const deliveryFee = cartSubtotal >= 500 || cartItems.length === 0 ? 0 : 50;
-  const cartTotal = cartSubtotal + deliveryFee;
+  // Universal Free Delivery is 0 across the entire system
+  const deliveryFee = 0;
+  const cartTotal = cartSubtotal;
+  const minOrderAmount = 500;
+  const isMinOrderMet = cartSubtotal >= 500;
+  const amountNeededForMinOrder = Math.max(0, 500 - cartSubtotal);
 
   // Find latest active order that was accepted and needs user attention or was recently placed
   const latestAcceptedOrder = activeOrders.find(
@@ -293,6 +297,9 @@ export function CartProvider({ children }) {
         cartSubtotal,
         deliveryFee,
         cartTotal,
+        minOrderAmount,
+        isMinOrderMet,
+        amountNeededForMinOrder,
         addToCart,
         removeFromCart,
         updateQty,

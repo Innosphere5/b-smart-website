@@ -125,6 +125,33 @@ function mapFromDb(row) {
   };
 }
 
+function applySequentialSeries(orders) {
+  if (!Array.isArray(orders) || orders.length === 0) return [];
+
+  const sortedChronological = [...orders].sort((a, b) => {
+    const timeA = new Date(a.createdAt || 0).getTime();
+    const timeB = new Date(b.createdAt || 0).getTime();
+    return timeA - timeB;
+  });
+
+  const seriesMap = new Map();
+  sortedChronological.forEach((o, index) => {
+    const seriesNo = index + 1;
+    seriesMap.set(String(o.id), seriesNo);
+  });
+
+  return orders.map((o) => {
+    const seriesNo = seriesMap.get(String(o.id)) || 1;
+    const sequentialOrderNumber = `#${seriesNo}`;
+    return {
+      ...o,
+      seriesNo,
+      orderNumber: sequentialOrderNumber,
+      rawOrderNumber: o.orderNumber || o.id
+    };
+  });
+}
+
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -149,6 +176,8 @@ export async function GET(request) {
       orders = fallbackOrders;
     }
 
+    orders = applySequentialSeries(orders);
+
     let filtered = orders;
     if (status && status !== 'All') {
       filtered = filtered.filter((o) => o.status?.toLowerCase() === status.toLowerCase());
@@ -169,10 +198,11 @@ export async function GET(request) {
       orders: filtered
     });
   } catch (err) {
+    const sequenced = applySequentialSeries(fallbackOrders);
     return NextResponse.json({
       success: true,
-      count: fallbackOrders.length,
-      orders: fallbackOrders
+      count: sequenced.length,
+      orders: sequenced
     });
   }
 }
@@ -192,10 +222,19 @@ export async function POST(request) {
       );
     }
 
-    const orderId = body.id || `BS-${Math.floor(1000 + Math.random() * 9000)}`;
-    const orderNumber = body.orderNumber || `#${orderId.replace('-', '')}`;
+    // Determine sequential sequence number
+    let nextSeq = 1;
+    try {
+      const { data: existing } = await supabase.from('orders').select('id');
+      nextSeq = (existing && existing.length > 0) ? existing.length + 1 : (fallbackOrders.length + 1);
+    } catch (e) {
+      nextSeq = fallbackOrders.length + 1;
+    }
+
+    const orderId = body.id || `BS-${nextSeq}`;
+    const orderNumber = `#${nextSeq}`;
     const subtotal = Number(body.subtotal ?? items.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.qty || 1)), 0));
-    const deliveryFee = Number(body.deliveryFee ?? (subtotal >= 500 ? 0 : 50));
+    const deliveryFee = Number(body.deliveryFee ?? 0);
     const totalAmount = Number(body.totalAmount ?? (subtotal + deliveryFee));
     const itemsCount = items.reduce((sum, item) => sum + Number(item.qty || 1), 0);
 
@@ -247,7 +286,11 @@ export async function POST(request) {
       }]);
     } catch (e) {}
 
-    const formatted = mapFromDb(newOrder);
+    const formatted = {
+      ...mapFromDb(newOrder),
+      seriesNo: nextSeq,
+      orderNumber
+    };
     fallbackOrders.unshift(formatted);
 
     return NextResponse.json({

@@ -23,42 +23,80 @@ import {
   Sparkles,
   Layers,
 } from "lucide-react";
-import { getLiveProducts, getCachedProducts } from "@/lib/api";
+import {
+  getLiveProducts,
+  getCachedProducts,
+  getLiveSchools,
+  getCachedSchools,
+  getLiveClasses,
+  getCachedClasses,
+} from "@/lib/api";
 
-const SCHOOLS = [
-  { name: "Delhi Public School, Bathinda", tag: "All Grades", Icon: Landmark, highlighted: true },
-  { name: "St. Xavier School, Bathinda", tag: "Boys & Girls", Icon: ShieldCheck },
-  { name: "St. Joseph School, Bathinda", tag: "All Classes", Icon: GraduationCap },
-  { name: "Silver Oaks School, Bathinda", tag: "All Grades", Icon: BookOpen },
-  { name: "Silver Oaks Global School, Bathinda", tag: "All Grades", Icon: Layers },
-  { name: "St. Paul's School, Bathinda", tag: "Boys & Girls", Icon: ShieldCheck },
-  { name: "Xavier World School, Bathinda", tag: "All Classes", Icon: GraduationCap },
-  { name: "St. Kabir Convent School, Bhuchoo Khurd", tag: "All Grades", Icon: BookOpen },
-  { name: "St. Kabir Convent School, Model Town", tag: "All Grades", Icon: BookOpen },
-  { name: "The Sanskaar School, Talwandi Sabo", tag: "All Classes", Icon: Landmark },
-  { name: "DAV Public School, Bathinda", tag: "All Grades", Icon: GraduationCap },
-];
+const SCHOOL_ICON_MAP = {
+  "delhi public school": Landmark,
+  "st. xavier": ShieldCheck,
+  "st. joseph": GraduationCap,
+  "silver oaks global": Layers,
+  "silver oaks": BookOpen,
+  "st. paul": ShieldCheck,
+  "xavier world": GraduationCap,
+  "st. kabir": BookOpen,
+  "the sanskaar": Landmark,
+  "dav public": GraduationCap,
+};
+
+function getSchoolMeta(schoolName) {
+  const lower = (schoolName || "").toLowerCase();
+  for (const [key, icon] of Object.entries(SCHOOL_ICON_MAP)) {
+    if (lower.includes(key)) {
+      return { Icon: icon, highlighted: lower.includes("delhi public") };
+    }
+  }
+  return { Icon: GraduationCap, highlighted: false };
+}
 
 export default function HomePage() {
   const [products, setProducts] = useState(() => getCachedProducts() || []);
+  const [schoolsList, setSchoolsList] = useState(() => getCachedSchools() || []);
+  const [classesList, setClassesList] = useState(() => getCachedClasses() || []);
   const [isLoading, setIsLoading] = useState(() => !getCachedProducts());
   const [isLive, setIsLive] = useState(false);
   const [selectedSchool, setSelectedSchool] = useState("All");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedClass, setSelectedClass] = useState("All");
 
   useEffect(() => {
     let isMounted = true;
 
     async function loadCatalog() {
       try {
-        const data = await getLiveProducts();
-        if (isMounted && Array.isArray(data)) {
-          setProducts(data);
-          setIsLive(true);
-          setIsLoading(false);
+        const [prodData, schoolsData, classesData] = await Promise.all([
+          getLiveProducts(),
+          getLiveSchools(),
+          getLiveClasses(),
+        ]);
+
+        if (isMounted) {
+          if (Array.isArray(prodData)) {
+            setProducts(prodData);
+            setIsLive(true);
+            setIsLoading(false);
+          }
+          if (Array.isArray(schoolsData) && schoolsData.length > 0) {
+            setSchoolsList(schoolsData);
+            // If currently selected school was deleted in admin app, reset filter to All
+            setSelectedSchool((prev) => {
+              if (prev === "All") return prev;
+              const exists = schoolsData.some((s) => s.toLowerCase() === prev.toLowerCase());
+              return exists ? prev : "All";
+            });
+          }
+          if (Array.isArray(classesData) && classesData.length > 0) {
+            setClassesList(classesData);
+          }
         }
       } catch (err) {
-        console.error("Error loading products catalog:", err);
+        console.error("Error loading products/masters catalog:", err);
       } finally {
         if (isMounted) setIsLoading(false);
       }
@@ -74,25 +112,61 @@ export default function HomePage() {
 
   // Garment category tabs instead of generic Boys/Girls Uniform
   const categories = useMemo(() => {
-    const baseTabs = ["All", "Blazer", "Shirt", "Pant", "Sweater"];
-    // Collect any other unique categories from loaded products, excluding boy/girl uniform
+    // Individual tabs: Blazer, Shirt, Pant, Sweater, Tie, Belt, Accessories
+    const baseTabs = ["All", "Blazer", "Shirt", "Pant", "Sweater", "Tie", "Belt", "Accessories"];
+    // Collect any other unique categories from loaded products (e.g. Socks, Jacket), excluding boy/girl uniform
     const extra = new Set();
     products.forEach((p) => {
       if (p.category) {
-        const lower = p.category.toLowerCase().trim();
-        if (
-          !lower.includes("boy") &&
-          !lower.includes("girl") &&
-          !baseTabs.some((t) => lower.includes(t.toLowerCase()))
-        ) {
-          extra.add(p.category);
+        const cat = p.category.trim();
+        const lower = cat.toLowerCase();
+
+        if (lower.includes("boy") || lower.includes("girl")) return;
+
+        // Exclude any combined legacy strings so it never shows combined tab
+        if (lower.includes("accessories") && (lower.includes("tie") || lower.includes("belt"))) {
+          return;
+        }
+
+        const matchedBase = baseTabs.some((t) => {
+          const tLower = t.toLowerCase();
+          return lower === tLower || (tLower === "blazer" && (lower.includes("coat") || lower.includes("blazer")));
+        });
+
+        if (!matchedBase) {
+          extra.add(cat);
         }
       }
     });
     return [...baseTabs, ...Array.from(extra)];
   }, [products]);
 
-  // Filter products by school and category
+  // Dynamic class tabs for user filter
+  const classes = useMemo(() => {
+    const baseTabs = ["All"];
+    const set = new Set();
+    // Classes from live backend Class Master
+    classesList.forEach((cls) => {
+      if (cls && typeof cls === "string") {
+        const trimmed = cls.trim();
+        if (trimmed && trimmed.toLowerCase() !== "all" && trimmed.toLowerCase() !== "all classes") {
+          set.add(trimmed);
+        }
+      }
+    });
+    // Classes from active products
+    products.forEach((p) => {
+      if (p.applicableClass && typeof p.applicableClass === "string") {
+        const trimmed = p.applicableClass.trim();
+        if (trimmed && trimmed.toLowerCase() !== "all" && trimmed.toLowerCase() !== "all classes") {
+          set.add(trimmed);
+        }
+      }
+    });
+    return [...baseTabs, ...Array.from(set)];
+  }, [classesList, products]);
+
+  // Filter products by school, category, and class
   const filteredProducts = useMemo(() => {
     return products.filter((item) => {
       const matchSchool =
@@ -101,6 +175,18 @@ export default function HomePage() {
         item.school === "General School";
 
       if (!matchSchool) return false;
+
+      // Filter by Class
+      if (selectedClass !== "All") {
+        const itemClass = (item.applicableClass || "").trim().toLowerCase();
+        const selClass = selectedClass.trim().toLowerCase();
+        const matchClass =
+          itemClass === "all classes" ||
+          itemClass === selClass ||
+          itemClass.includes(selClass);
+        if (!matchClass) return false;
+      }
+
       if (selectedCategory === "All") return true;
 
       const cat = (item.category || "").toLowerCase();
@@ -135,19 +221,25 @@ export default function HomePage() {
           name.includes("sweater")
         );
       }
-      if (sel.includes("accessories") || sel.includes("tie")) {
+      if (sel.includes("accessories")) {
         return (
-          cat.includes("accessories") ||
-          cat.includes("tie") ||
-          cat.includes("belt") ||
-          name.includes("tie") ||
-          name.includes("belt")
+          (cat.includes("accessories") || name.includes("accessories")) &&
+          !cat.includes("tie") &&
+          !cat.includes("belt") &&
+          !name.includes("tie") &&
+          !name.includes("belt")
         );
+      }
+      if (sel.includes("tie")) {
+        return cat.includes("tie") || name.includes("tie");
+      }
+      if (sel.includes("belt")) {
+        return cat.includes("belt") || name.includes("belt");
       }
 
       return cat === sel || cat.includes(sel) || name.includes(sel);
     });
-  }, [products, selectedSchool, selectedCategory]);
+  }, [products, selectedSchool, selectedCategory, selectedClass]);
 
   const handleSchoolCardClick = (schoolName) => {
     setSelectedSchool(selectedSchool === schoolName ? "All" : schoolName);
@@ -156,6 +248,32 @@ export default function HomePage() {
       target.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  // Derive active schools dynamically from live backend API or active products — zero ghost/deleted schools
+  const displaySchools = useMemo(() => {
+    let rawList = [];
+    if (schoolsList && schoolsList.length > 0) {
+      rawList = schoolsList;
+    } else {
+      const pSchools = new Set();
+      products.forEach((p) => {
+        if (p.school && p.school !== "General School") {
+          pSchools.add(p.school.trim());
+        }
+      });
+      rawList = Array.from(pSchools);
+    }
+
+    return rawList.map((schoolName) => {
+      const { Icon, highlighted } = getSchoolMeta(schoolName);
+      return {
+        name: schoolName,
+        tag: "All Classes",
+        Icon,
+        highlighted,
+      };
+    });
+  }, [schoolsList, products]);
 
   return (
     <main className="app-frame bg-[#FEF8E7] mobile-bottom-pad relative selection:bg-[#FACC15]/60 selection:text-[#450A0A]">
@@ -219,7 +337,7 @@ export default function HomePage() {
 
                   <p className="mt-3 sm:mt-4 max-w-md text-[10px] sm:text-xs md:text-sm leading-relaxed text-yellow-100 font-semibold flex items-start gap-1.5">
                     <span>
-                      📍 <strong className="text-white">Store:-</strong> #MCB-Z304654, Dr. Mela Ram Hospital Road, Amrik Singh Road, Bathinda ( PB ) 151001
+                      📍 <strong className="text-white">Store:-</strong> #MCB-Z304654, Dr. Mela Ram Hospital Road, Amrik Singh Road, Bathinda ( PB ) 151001.
                     </span>
                   </p>
 
@@ -294,7 +412,7 @@ export default function HomePage() {
           </ScrollReveal>
 
           <div className="mt-6 sm:mt-8 grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
-            {SCHOOLS.map(({ name, tag, Icon, highlighted }, idx) => {
+            {displaySchools.map(({ name, tag, Icon, highlighted }, idx) => {
               const isSelected = selectedSchool === name;
 
               return (
@@ -343,13 +461,16 @@ export default function HomePage() {
                   </h2>
                 </div>
                 <p className="mt-1 text-xs sm:text-sm font-semibold text-gray-700">
-                  Select your school institution to view complete uniforms
+                  School Uniforms, Shoes & Accessories
                 </p>
               </div>
 
               {/* Quick Filter Tabs for Category */}
               {categories.length > 1 && (
                 <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                  <span className="text-[11px] sm:text-xs font-black text-[#7F1D1D] uppercase tracking-wider hidden sm:inline-block mr-1">
+                    Category:
+                  </span>
                   {categories.map((cat) => (
                     <button
                       key={cat}
@@ -365,15 +486,37 @@ export default function HomePage() {
                 </div>
               )}
             </div>
+
+            {/* Quick Filter Tabs for Class (Linked to Dynamic Class Master) */}
+            {classes.length > 1 && (
+              <div className="mt-4 flex flex-wrap items-center gap-1.5 sm:gap-2 pt-3 border-t border-[#FCD34D]/50">
+                <span className="text-[11px] sm:text-xs font-black text-[#7F1D1D] uppercase tracking-wider flex items-center gap-1 mr-1">
+                  <GraduationCap size={15} className="text-[#9F1239]" /> Class:
+                </span>
+                {classes.map((cls) => (
+                  <button
+                    key={cls}
+                    onClick={() => setSelectedClass(cls)}
+                    className={`rounded-xl px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-black transition-all duration-200 active:scale-95 ${
+                      selectedClass === cls
+                        ? "bg-[#7F1D1D] text-white shadow-md border-2 border-[#FACC15]"
+                        : "bg-white text-gray-700 hover:bg-[#FEF9C3] border border-[#FCD34D]"
+                    }`}
+                  >
+                    {cls}
+                  </button>
+                ))}
+              </div>
+            )}
           </ScrollReveal>
 
           {/* Active Filter Indicators */}
-          {(selectedSchool !== "All" || selectedCategory !== "All") && (
+          {(selectedSchool !== "All" || selectedCategory !== "All" || selectedClass !== "All") && (
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <span className="text-xs font-bold text-gray-600">Active Filters:</span>
               {selectedSchool !== "All" && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-[#9F1239] px-2.5 py-1 text-xs font-black text-white shadow-xs">
-                  {selectedSchool}
+                  🏫 {selectedSchool}
                   <button onClick={() => setSelectedSchool("All")} className="hover:text-[#FACC15]">
                     ✕
                   </button>
@@ -381,8 +524,16 @@ export default function HomePage() {
               )}
               {selectedCategory !== "All" && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-[#FACC15] px-2.5 py-1 text-xs font-black text-[#7F1D1D] shadow-xs">
-                  {selectedCategory}
+                  🏷️ {selectedCategory}
                   <button onClick={() => setSelectedCategory("All")} className="hover:text-red-800">
+                    ✕
+                  </button>
+                </span>
+              )}
+              {selectedClass !== "All" && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#7F1D1D] px-2.5 py-1 text-xs font-black text-[#FACC15] shadow-xs border border-[#FACC15]">
+                  🎓 {selectedClass}
+                  <button onClick={() => setSelectedClass("All")} className="hover:text-white">
                     ✕
                   </button>
                 </span>
@@ -391,8 +542,9 @@ export default function HomePage() {
                 onClick={() => {
                   setSelectedSchool("All");
                   setSelectedCategory("All");
+                  setSelectedClass("All");
                 }}
-                className="text-xs font-black text-[#9F1239] underline ml-1"
+                className="text-xs font-black text-[#9F1239] underline ml-1 hover:text-[#7F1D1D]"
               >
                 Reset All
               </button>
