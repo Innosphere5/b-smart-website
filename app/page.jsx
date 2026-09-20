@@ -72,8 +72,8 @@ export default function HomePage() {
       try {
         const [prodData, schoolsData, classesData] = await Promise.all([
           getLiveProducts(),
-          getLiveSchools(),
-          getLiveClasses(),
+          getLiveSchools(true),
+          getLiveClasses(true),
         ]);
 
         if (isMounted) {
@@ -82,7 +82,7 @@ export default function HomePage() {
             setIsLive(true);
             setIsLoading(false);
           }
-          if (Array.isArray(schoolsData) && schoolsData.length > 0) {
+          if (Array.isArray(schoolsData)) {
             setSchoolsList(schoolsData);
             // If currently selected school was deleted in admin app, reset filter to All
             setSelectedSchool((prev) => {
@@ -91,8 +91,14 @@ export default function HomePage() {
               return exists ? prev : "All";
             });
           }
-          if (Array.isArray(classesData) && classesData.length > 0) {
+          if (Array.isArray(classesData)) {
             setClassesList(classesData);
+            // If currently selected class was deleted in admin app, reset filter to All
+            setSelectedClass((prev) => {
+              if (prev === "All") return prev;
+              const exists = classesData.some((c) => c.toLowerCase() === prev.toLowerCase());
+              return exists ? prev : "All";
+            });
           }
         }
       } catch (err) {
@@ -103,7 +109,7 @@ export default function HomePage() {
     }
 
     loadCatalog();
-    const interval = setInterval(loadCatalog, 15000);
+    const interval = setInterval(loadCatalog, 10000);
     return () => {
       isMounted = false;
       clearInterval(interval);
@@ -141,12 +147,11 @@ export default function HomePage() {
     return [...baseTabs, ...Array.from(extra)];
   }, [products]);
 
-  // Dynamic class tabs for user filter
+  // Dynamic class tabs for user filter - STRICTLY derived from live Class Master
   const classes = useMemo(() => {
     const baseTabs = ["All"];
     const set = new Set();
-    // Classes from live backend Class Master
-    classesList.forEach((cls) => {
+    (classesList || []).forEach((cls) => {
       if (cls && typeof cls === "string") {
         const trimmed = cls.trim();
         if (trimmed && trimmed.toLowerCase() !== "all" && trimmed.toLowerCase() !== "all classes") {
@@ -154,17 +159,8 @@ export default function HomePage() {
         }
       }
     });
-    // Classes from active products
-    products.forEach((p) => {
-      if (p.applicableClass && typeof p.applicableClass === "string") {
-        const trimmed = p.applicableClass.trim();
-        if (trimmed && trimmed.toLowerCase() !== "all" && trimmed.toLowerCase() !== "all classes") {
-          set.add(trimmed);
-        }
-      }
-    });
     return [...baseTabs, ...Array.from(set)];
-  }, [classesList, products]);
+  }, [classesList]);
 
   // Filter products by school, category, and class
   const filteredProducts = useMemo(() => {
@@ -249,20 +245,9 @@ export default function HomePage() {
     }
   };
 
-  // Derive active schools dynamically from live backend API or active products — zero ghost/deleted schools
+  // Derive active schools dynamically strictly from live School Master — zero ghost/deleted schools
   const displaySchools = useMemo(() => {
-    let rawList = [];
-    if (schoolsList && schoolsList.length > 0) {
-      rawList = schoolsList;
-    } else {
-      const pSchools = new Set();
-      products.forEach((p) => {
-        if (p.school && p.school !== "General School") {
-          pSchools.add(p.school.trim());
-        }
-      });
-      rawList = Array.from(pSchools);
-    }
+    const rawList = Array.isArray(schoolsList) ? schoolsList : [];
 
     return rawList.map((schoolName) => {
       const { Icon, highlighted } = getSchoolMeta(schoolName);
@@ -273,7 +258,8 @@ export default function HomePage() {
         highlighted,
       };
     });
-  }, [schoolsList, products]);
+  }, [schoolsList]);
+
 
   return (
     <main className="app-frame bg-[#FEF8E7] mobile-bottom-pad relative selection:bg-[#FACC15]/60 selection:text-[#450A0A]">
@@ -497,11 +483,10 @@ export default function HomePage() {
                   <button
                     key={cls}
                     onClick={() => setSelectedClass(cls)}
-                    className={`rounded-xl px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-black transition-all duration-200 active:scale-95 ${
-                      selectedClass === cls
+                    className={`rounded-xl px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-black transition-all duration-200 active:scale-95 ${selectedClass === cls
                         ? "bg-[#7F1D1D] text-white shadow-md border-2 border-[#FACC15]"
                         : "bg-white text-gray-700 hover:bg-[#FEF9C3] border border-[#FCD34D]"
-                    }`}
+                      }`}
                   >
                     {cls}
                   </button>
