@@ -30,6 +30,8 @@ import {
   getCachedSchools,
   getLiveClasses,
   getCachedClasses,
+  getLiveCategories,
+  getCachedCategories,
 } from "@/lib/api";
 
 const SCHOOL_ICON_MAP = {
@@ -59,6 +61,7 @@ export default function HomePage() {
   const [products, setProducts] = useState(() => getCachedProducts() || []);
   const [schoolsList, setSchoolsList] = useState(() => getCachedSchools() || []);
   const [classesList, setClassesList] = useState(() => getCachedClasses() || []);
+  const [categoriesList, setCategoriesList] = useState(() => getCachedCategories() || []);
   const [isLoading, setIsLoading] = useState(() => !getCachedProducts());
   const [isLive, setIsLive] = useState(false);
   const [selectedSchool, setSelectedSchool] = useState("All");
@@ -70,10 +73,11 @@ export default function HomePage() {
 
     async function loadCatalog() {
       try {
-        const [prodData, schoolsData, classesData] = await Promise.all([
+        const [prodData, schoolsData, classesData, categoriesData] = await Promise.all([
           getLiveProducts(),
           getLiveSchools(true),
           getLiveClasses(true),
+          getLiveCategories(true),
         ]);
 
         if (isMounted) {
@@ -100,6 +104,15 @@ export default function HomePage() {
               return exists ? prev : "All";
             });
           }
+          if (Array.isArray(categoriesData)) {
+            setCategoriesList(categoriesData);
+            // If currently selected category was deleted in admin app, reset filter to All
+            setSelectedCategory((prev) => {
+              if (prev === "All") return prev;
+              const exists = categoriesData.some((c) => c.toLowerCase() === prev.toLowerCase());
+              return exists ? prev : "All";
+            });
+          }
         }
       } catch (err) {
         console.error("Error loading products/masters catalog:", err);
@@ -116,36 +129,20 @@ export default function HomePage() {
     };
   }, []);
 
-  // Garment category tabs instead of generic Boys/Girls Uniform
+  // Dynamic garment category tabs strictly derived from live Category Master
   const categories = useMemo(() => {
-    // Individual tabs: Blazer, Shirt, Pant, Sweater, Tie, Belt, Accessories
-    const baseTabs = ["All", "Blazer", "Shirt", "Pant", "Sweater", "Tie", "Belt", "Accessories"];
-    // Collect any other unique categories from loaded products (e.g. Socks, Jacket), excluding boy/girl uniform
-    const extra = new Set();
-    products.forEach((p) => {
-      if (p.category) {
-        const cat = p.category.trim();
-        const lower = cat.toLowerCase();
-
-        if (lower.includes("boy") || lower.includes("girl")) return;
-
-        // Exclude any combined legacy strings so it never shows combined tab
-        if (lower.includes("accessories") && (lower.includes("tie") || lower.includes("belt"))) {
-          return;
-        }
-
-        const matchedBase = baseTabs.some((t) => {
-          const tLower = t.toLowerCase();
-          return lower === tLower || (tLower === "blazer" && (lower.includes("coat") || lower.includes("blazer")));
-        });
-
-        if (!matchedBase) {
-          extra.add(cat);
+    const baseTabs = ["All"];
+    const set = new Set();
+    (categoriesList || []).forEach((cat) => {
+      if (cat && typeof cat === "string") {
+        const trimmed = cat.trim();
+        if (trimmed && trimmed.toLowerCase() !== "all") {
+          set.add(trimmed);
         }
       }
     });
-    return [...baseTabs, ...Array.from(extra)];
-  }, [products]);
+    return [...baseTabs, ...Array.from(set)];
+  }, [categoriesList]);
 
   // Dynamic class tabs for user filter - STRICTLY derived from live Class Master
   const classes = useMemo(() => {
