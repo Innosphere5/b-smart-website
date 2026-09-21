@@ -21,8 +21,10 @@ import {
   Check
 } from "lucide-react";
 import { useCart } from "@/lib/CartContext";
+import { useAuth } from "@/lib/AuthContext";
 
 export default function CartPage() {
+  const { user } = useAuth();
   const {
     cartItems,
     cartCount,
@@ -37,6 +39,13 @@ export default function CartPage() {
     latestAcceptedOrder,
     latestActiveOrder
   } = useCart();
+
+  const isOrderOwner = (o) => {
+    if (!user || !o) return false;
+    const userEmail = user?.email?.trim().toLowerCase();
+    const orderEmail = (o.customerEmail || "").trim().toLowerCase();
+    return userEmail && orderEmail && userEmail === orderEmail;
+  };
 
   const [completingOrderId, setCompletingOrderId] = useState(null);
   const [completedSuccess, setCompletedSuccess] = useState(false);
@@ -64,7 +73,7 @@ export default function CartPage() {
         {/* ======================================================== */}
         {/* 1. REAL-TIME ADMIN NOTIFICATION & ORDER STATUS BANNER    */}
         {/* ======================================================== */}
-        {latestAcceptedOrder && !completedSuccess && (
+        {user && latestAcceptedOrder && isOrderOwner(latestAcceptedOrder) && !completedSuccess && (
           <div className="mb-5 sm:mb-8 overflow-hidden rounded-xl sm:rounded-2xl border-2 border-emerald-500 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-100 p-4 sm:p-5 shadow-lg">
             <div className="flex flex-col gap-3 sm:gap-4 md:flex-row md:items-center md:justify-between">
               <div className="flex items-start gap-2.5 sm:gap-3.5">
@@ -144,7 +153,7 @@ export default function CartPage() {
         )}
 
         {/* Pending Order Notice */}
-        {!latestAcceptedOrder && latestActiveOrder && latestActiveOrder.status === "pending" && (
+        {user && !latestAcceptedOrder && latestActiveOrder && isOrderOwner(latestActiveOrder) && latestActiveOrder.status === "pending" && (
           <div className="mb-5 sm:mb-8 rounded-xl sm:rounded-2xl border-2 border-amber-300 bg-amber-50 p-3 sm:p-4 shadow-sm">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2 sm:gap-3">

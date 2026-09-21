@@ -2,61 +2,45 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/lib/AuthContext";
 
 const CartContext = createContext(null);
 
 const CART_STORAGE_KEY = "bsmart_user_cart_v1";
-const ORDERS_STORAGE_KEY = "bsmart_user_order_ids_v1";
 const API_BASE_URL = "";
 
 export function CartProvider({ children }) {
+  const { user } = useAuth();
   const [cartItems, setCartItems] = useState([]);
   const [userOrderIds, setUserOrderIds] = useState([]);
   const [activeOrders, setActiveOrders] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Initialize cart & order history from localStorage
+  // Dynamic user-scoped order IDs storage key
+  const userOrderStorageKey = user?.uid
+    ? `bsmart_orders_${user.uid}`
+    : "bsmart_guest_order_ids";
+
+  // Initialize cart from localStorage & clean up any legacy dummy demo order IDs
   useEffect(() => {
     try {
+      // Clear legacy poisoned storage if present
+      const legacyOrders = localStorage.getItem("bsmart_user_order_ids_v1");
+      if (legacyOrders) {
+        try {
+          const parsed = JSON.parse(legacyOrders);
+          const cleaned = parsed.filter((id) => id !== "BS-1024" && id !== "BS-1023");
+          if (cleaned.length === 0) {
+            localStorage.removeItem("bsmart_user_order_ids_v1");
+          }
+        } catch (e) {}
+      }
+
       const savedCart = localStorage.getItem(CART_STORAGE_KEY);
       if (savedCart) {
         setCartItems(JSON.parse(savedCart));
       } else {
-        // Default sample item if empty
-        setCartItems([
-          {
-            id: "cart-item-default-1",
-            productId: "prod-1",
-            name: "Boys Full-Sleeve White Shirt (Bathinda)",
-            school: "Delhi Public School",
-            applicableClass: "I - V",
-            category: "Boys Uniform",
-            size: "30",
-            price: 550,
-            qty: 2,
-            imageSrc: "/prod-shirt.jpg",
-          },
-          {
-            id: "cart-item-default-2",
-            productId: "prod-2",
-            name: "Girls Pleated Dark Skirt",
-            school: "St. Mary's",
-            applicableClass: "VI - VIII",
-            category: "Girls Uniform",
-            size: "28",
-            price: 600,
-            qty: 1,
-            imageSrc: "/prod-skirt.jpg",
-          },
-        ]);
-      }
-
-      const savedOrders = localStorage.getItem(ORDERS_STORAGE_KEY);
-      if (savedOrders) {
-        setUserOrderIds(JSON.parse(savedOrders));
-      } else {
-        // Track the demo order ID
-        setUserOrderIds(["BS-1024", "BS-1023"]);
+        setCartItems([]);
       }
     } catch (e) {
       console.warn("Could not load cart from localStorage", e);
@@ -64,6 +48,24 @@ export function CartProvider({ children }) {
       setIsLoaded(true);
     }
   }, []);
+
+  // Load user-scoped order IDs when user changes or loads
+  useEffect(() => {
+    try {
+      const savedOrders = localStorage.getItem(userOrderStorageKey);
+      if (savedOrders) {
+        const parsed = JSON.parse(savedOrders);
+        const filtered = Array.isArray(parsed)
+          ? parsed.filter((id) => id !== "BS-1024" && id !== "BS-1023")
+          : [];
+        setUserOrderIds(filtered);
+      } else {
+        setUserOrderIds([]);
+      }
+    } catch (e) {
+      setUserOrderIds([]);
+    }
+  }, [userOrderStorageKey]);
 
   // Sync cart changes to localStorage
   useEffect(() => {
@@ -76,36 +78,53 @@ export function CartProvider({ children }) {
     }
   }, [cartItems, isLoaded]);
 
-  // Sync user order IDs to localStorage
+  // Sync user order IDs to user-scoped localStorage
   useEffect(() => {
     if (isLoaded) {
       try {
-        localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(userOrderIds));
+        localStorage.setItem(userOrderStorageKey, JSON.stringify(userOrderIds));
       } catch (e) {
         console.warn("Could not save order IDs to localStorage", e);
       }
     }
-  }, [userOrderIds, isLoaded]);
+  }, [userOrderIds, userOrderStorageKey, isLoaded]);
 
-  // Real-time fetching and synchronization for user active orders
+  // Real-time fetching and synchronization strictly for current user orders
   const fetchActiveOrders = useCallback(async () => {
+    const userEmail = user?.email?.trim().toLowerCase();
+
+    // If user is not logged in and has no placed order IDs on this device, show nothing
+    if (!userEmail && userOrderIds.length === 0) {
+      setActiveOrders([]);
+      return;
+    }
+
     try {
-      const res = await fetch(`${API_BASE_URL}/api/orders`);
+      const params = new URLSearchParams();
+      if (userEmail) params.set("email", userEmail);
+      if (userOrderIds.length > 0) params.set("orderIds", userOrderIds.join(","));
+
+      const res = await fetch(`${API_BASE_URL}/api/orders?${params.toString()}`);
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.orders)) {
-          const relevant = data.orders.filter(
-            (o) =>
-              userOrderIds.includes(o.id) ||
-              userOrderIds.includes(o.orderNumber) ||
+          // Strictly verify every order belongs to the user
+          const relevant = data.orders.filter((o) => {
+            const oEmail = (o.customerEmail || "").toLowerCase();
+            const matchesEmail = userEmail && oEmail && oEmail === userEmail;
+            const matchesId =
               userOrderIds.includes(String(o.id)) ||
-              userOrderIds.length === 0
-          );
-          setActiveOrders(relevant.length > 0 ? relevant : data.orders.slice(0, 3));
+              userOrderIds.includes(String(o.orderNumber)) ||
+              userOrderIds.includes(String(o.rawOrderNumber || ""));
+            return matchesEmail || matchesId;
+          });
+          setActiveOrders(relevant);
         }
       }
-    } catch (err) {}
-  }, [userOrderIds]);
+    } catch (err) {
+      // Quiet fail on network interruption
+    }
+  }, [user?.email, userOrderIds]);
 
   useEffect(() => {
     fetchActiveOrders();
@@ -113,16 +132,28 @@ export function CartProvider({ children }) {
     // 1. Supabase Realtime Postgres Changes Subscription
     let orderChannel;
     try {
+      const channelId = `user-orders-${user?.uid || "guest"}-${Date.now()}`;
       orderChannel = supabase
-        .channel('user-cart-orders')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload) => {
-          if (payload.eventType === 'INSERT' && payload.new) {
-            setActiveOrders((prev) => [payload.new, ...prev]);
-          } else if (payload.eventType === 'UPDATE' && payload.new) {
+        .channel(channelId)
+        .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, (payload) => {
+          const userEmail = user?.email?.trim().toLowerCase();
+
+          if (payload.eventType === "INSERT" && payload.new) {
+            const newOrder = payload.new;
+            const oEmail = (newOrder.customer_email || "").toLowerCase();
+            const isOwn =
+              (userEmail && oEmail && oEmail === userEmail) ||
+              userOrderIds.includes(String(newOrder.id)) ||
+              userOrderIds.includes(String(newOrder.order_number));
+
+            if (isOwn) {
+              setActiveOrders((prev) => [newOrder, ...prev.filter((o) => o.id !== newOrder.id)]);
+            }
+          } else if (payload.eventType === "UPDATE" && payload.new) {
             setActiveOrders((prev) =>
               prev.map((o) => (o.id === payload.new.id ? { ...o, ...payload.new } : o))
             );
-          } else if (payload.eventType === 'DELETE' && payload.old) {
+          } else if (payload.eventType === "DELETE" && payload.old) {
             setActiveOrders((prev) => prev.filter((o) => o.id !== payload.old.id));
           }
           fetchActiveOrders();
@@ -133,9 +164,9 @@ export function CartProvider({ children }) {
     // 2. EventSource (SSE) Live Broadcast Fallback
     let eventSource;
     try {
-      if (typeof window !== 'undefined' && window.EventSource) {
+      if (typeof window !== "undefined" && window.EventSource) {
         eventSource = new EventSource(`${API_BASE_URL}/api/realtime/stream`);
-        eventSource.addEventListener('order_updated', (e) => {
+        eventSource.addEventListener("order_updated", (e) => {
           try {
             const updated = JSON.parse(e.data);
             setActiveOrders((prev) =>
@@ -143,13 +174,21 @@ export function CartProvider({ children }) {
             );
           } catch (err) {}
         });
-        eventSource.addEventListener('order_created', (e) => {
+        eventSource.addEventListener("order_created", (e) => {
           try {
             const created = JSON.parse(e.data);
-            setActiveOrders((prev) => [created, ...prev.filter((o) => o.id !== created.id)]);
+            const userEmail = user?.email?.trim().toLowerCase();
+            const oEmail = (created.customerEmail || "").toLowerCase();
+            const isOwn =
+              (userEmail && oEmail && oEmail === userEmail) ||
+              userOrderIds.includes(String(created.id)) ||
+              userOrderIds.includes(String(created.orderNumber));
+            if (isOwn) {
+              setActiveOrders((prev) => [created, ...prev.filter((o) => o.id !== created.id)]);
+            }
           } catch (err) {}
         });
-        eventSource.addEventListener('order_completed', (e) => {
+        eventSource.addEventListener("order_completed", (e) => {
           try {
             const completed = JSON.parse(e.data);
             setActiveOrders((prev) =>
@@ -160,15 +199,15 @@ export function CartProvider({ children }) {
       }
     } catch (e) {}
 
-    // 3. Keep a backup poll every 3 seconds for snappy updates
-    const interval = setInterval(fetchActiveOrders, 3000);
+    // 3. Keep a backup poll every 5 seconds for active order updates
+    const interval = setInterval(fetchActiveOrders, 5000);
 
     return () => {
       if (orderChannel) supabase.removeChannel(orderChannel);
       if (eventSource) eventSource.close();
       clearInterval(interval);
     };
-  }, [fetchActiveOrders]);
+  }, [fetchActiveOrders, user?.email, userOrderIds]);
 
   // Add Item to Cart
   const addToCart = (product, selectedSize, qty = 1) => {
