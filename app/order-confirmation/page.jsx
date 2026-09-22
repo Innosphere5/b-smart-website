@@ -47,43 +47,10 @@ export default function OrderConfirmationPage({ searchParams }) {
       // Backend lookup fallback
     }
 
-    // Fallback from CartContext activeOrders
+    // Fallback lookup from CartContext activeOrders
     const found = activeOrders.find((o) => o.id === orderId || o.orderNumber === orderId);
     if (found) {
       setOrder(found);
-    } else {
-      setOrder({
-        id: orderId,
-        orderNumber: `#${orderId.replace('-', '')}`,
-        customerName: "Rahul Sharma",
-        customerMobile: "+91 98883 88170",
-        customerEmail: "rahul.sharma@example.com",
-        school: "Delhi Public School",
-        deliveryAddress: {
-          address1: "House No. 142, Street 4, Model Town",
-          address2: "Near Kali Mata Temple",
-          city: "Bathinda",
-          state: "Punjab",
-          postal: "151001"
-        },
-        items: [
-          {
-            name: "Boys Full-Sleeve White Shirt (Bathinda)",
-            school: "Delhi Public School",
-            size: "30",
-            price: 550,
-            qty: 2,
-            itemTotal: 1100,
-            imageSrc: "/prod-shirt.jpg"
-          }
-        ],
-        subtotal: 1100,
-        deliveryFee: 0,
-        totalAmount: 1100,
-        status: "pending",
-        deliveryTime: "",
-        createdAt: new Date().toISOString()
-      });
     }
     setLoading(false);
   };

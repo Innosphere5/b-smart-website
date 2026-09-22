@@ -1,28 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
-let fallbackNotifs = [
-  {
-    id: 'notif-seed-1',
-    orderId: 'BS-1024',
-    type: 'order_created',
-    title: 'New Uniform Order Received',
-    message: 'Order #BS1024 placed for Delhi Public School (₹1,750)',
-    targetRole: 'all',
-    read: false,
-    createdAt: new Date(Date.now() - 3600000).toISOString()
-  },
-  {
-    id: 'notif-seed-2',
-    orderId: 'BS-1023',
-    type: 'order_accepted',
-    title: 'Order Accepted & Scheduled',
-    message: 'Order #BS1023 accepted. Expected Delivery: Today by 5:30 PM',
-    targetRole: 'all',
-    read: false,
-    createdAt: new Date(Date.now() - 72000000).toISOString()
-  }
-];
+let fallbackNotifs = [];
 
 function mapFromDb(row) {
   if (!row) return null;

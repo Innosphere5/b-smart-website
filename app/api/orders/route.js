@@ -157,26 +157,54 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const search = searchParams.get('search');
+    const email = (searchParams.get('email') || searchParams.get('userEmail') || '').trim().toLowerCase();
+    const orderIdsParam = searchParams.get('orderIds') || '';
+    const allowAll = searchParams.get('all') === 'true';
+
+    const orderIdsList = orderIdsParam
+      ? orderIdsParam.split(',').map((s) => s.trim()).filter(Boolean)
+      : [];
+
+    // Security & privacy check: If not requesting all (e.g. admin sync) and no user identification provided,
+    // return an empty array to prevent leaking customer orders across different users.
+    if (!allowAll && !email && orderIdsList.length === 0) {
+      return NextResponse.json({
+        success: true,
+        count: 0,
+        orders: []
+      });
+    }
 
     // 1. Try Supabase query
-    const { data, error } = await supabase
+    let query = supabase
       .from('orders')
       .select('*')
       .order('created_at', { ascending: false });
 
+    const { data, error } = await query;
+
     let orders = [];
 
     if (!error && Array.isArray(data)) {
-      if (data.length > 0) {
-        orders = data.map(mapFromDb).filter(Boolean);
-      } else {
-        orders = [];
-      }
+      orders = data.map(mapFromDb).filter(Boolean);
     } else {
       orders = fallbackOrders;
     }
 
     orders = applySequentialSeries(orders);
+
+    // Filter by user email or order IDs
+    if (!allowAll) {
+      orders = orders.filter((o) => {
+        const orderEmail = (o.customerEmail || '').toLowerCase();
+        const matchesEmail = email && orderEmail && orderEmail === email;
+        const matchesId =
+          orderIdsList.includes(String(o.id)) ||
+          orderIdsList.includes(String(o.orderNumber)) ||
+          orderIdsList.includes(String(o.rawOrderNumber || ''));
+        return matchesEmail || matchesId;
+      });
+    }
 
     let filtered = orders;
     if (status && status !== 'All') {
@@ -198,11 +226,10 @@ export async function GET(request) {
       orders: filtered
     });
   } catch (err) {
-    const sequenced = applySequentialSeries(fallbackOrders);
     return NextResponse.json({
       success: true,
-      count: sequenced.length,
-      orders: sequenced
+      count: 0,
+      orders: []
     });
   }
 }

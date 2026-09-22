@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/lib/AuthContext';
 
 const NotificationContext = createContext(null);
 const API_BASE_URL = "";
@@ -51,6 +52,7 @@ function playChime(type = 'default') {
 }
 
 export function NotificationProvider({ children }) {
+  const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [activeToast, setActiveToast] = useState(null);
   const [isLiveConnected, setIsLiveConnected] = useState(false);
@@ -58,11 +60,15 @@ export function NotificationProvider({ children }) {
   // Fetch initial notifications
   const fetchNotifications = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/notifications`);
+      const res = await fetch(`${API_BASE_URL}/api/notifications?role=customer`);
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.notifications)) {
-          setNotifications(data.notifications);
+          // Filter out order_created messages which are admin-facing notifications
+          const filtered = data.notifications.filter(
+            (n) => n.type !== 'order_created' || n.targetRole === 'customer'
+          );
+          setNotifications(filtered);
         }
       }
     } catch (e) {}
@@ -81,6 +87,9 @@ export function NotificationProvider({ children }) {
   // Handle incoming real-time notification
   const handleIncomingNotification = useCallback((notif) => {
     if (!notif || !notif.id) return;
+    // Don't show admin-facing order_created notifications to customers
+    if (notif.type === 'order_created' && notif.targetRole !== 'customer') return;
+
     setNotifications((prev) => {
       const exists = prev.some((n) => n.id === notif.id);
       if (exists) return prev;
@@ -123,6 +132,14 @@ export function NotificationProvider({ children }) {
         .channel('public:orders_events')
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, (payload) => {
           if (payload.new) {
+            const userEmail = user?.email?.trim().toLowerCase();
+            const orderEmail = (payload.new.customer_email || payload.new.customerEmail || '').toLowerCase();
+
+            // Only show order update toast if the order belongs to the logged-in user
+            if (!userEmail || !orderEmail || userEmail !== orderEmail) {
+              return;
+            }
+
             const status = payload.new.status;
             const orderNum = payload.new.order_number || payload.new.id;
             const deliveryTime = payload.new.delivery_time;
@@ -174,6 +191,14 @@ export function NotificationProvider({ children }) {
         eventSource.addEventListener('order_updated', (e) => {
           try {
             const data = JSON.parse(e.data);
+            const userEmail = user?.email?.trim().toLowerCase();
+            const orderEmail = (data.customerEmail || data.customer_email || '').toLowerCase();
+
+            // Only show order update toast if the order belongs to the logged-in user
+            if (!userEmail || !orderEmail || userEmail !== orderEmail) {
+              return;
+            }
+
             if (data.status === 'accepted') {
               showToast({
                 id: `toast-sse-${Date.now()}`,
@@ -190,8 +215,8 @@ export function NotificationProvider({ children }) {
       }
     } catch (e) {}
 
-    // 3. Fallback polling every 3 seconds for guaranteed live sync
-    const pollInterval = setInterval(fetchNotifications, 3000);
+    // 3. Fallback polling every 5 seconds for live sync
+    const pollInterval = setInterval(fetchNotifications, 5000);
 
     return () => {
       if (notifChannel) supabase.removeChannel(notifChannel);

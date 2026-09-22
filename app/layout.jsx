@@ -9,33 +9,49 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
   variable: "--font-sans",
+  display: "swap", // prevents render-blocking / improves CLS + LCP (Core Web Vitals -> ranking signal)
 });
 
 export const metadata = {
   metadataBase: new URL("https://bsmartdresses.com"),
   title: {
-    default: "B'Smart Dresses Bathinda - School Uniforms & Home Delivery",
+    default: "B'Smart Dresses Bathinda | Buy School Uniforms Online in Punjab",
     template: "%s | B'Smart Dresses Bathinda",
   },
   description:
-    "B'Smart Dresses Bathinda - Punjab's trusted school uniform store. Order premium quality uniforms online for Delhi Public School, St. Xavier, St. Joseph, Silver Oaks, St. Paul's & more. Fast doorstep delivery. Min order Rs500.",
+    "Shop premium school uniforms online at B'Smart Dresses, Bathinda. Trusted by DPS, St. Xavier, St. Joseph, Silver Oaks & DAV families across Punjab. Fast doorstep delivery, min order Rs500.",
   keywords: [
-    "B'Smart Dresses", "BSmart Dresses", "BSmart Bathinda", "B Smart Dresses Bathinda", "bsmartdresses.in",
-    "school uniforms Bathinda", "school uniforms Punjab", "school uniform home delivery Bathinda",
-    "buy school uniforms online Bathinda", "school uniform store near me", "uniform shop Bathinda",
-    "school shirt Bathinda", "school pant Bathinda", "school skirt Bathinda", "school tie Bathinda",
-    "school blazer Bathinda", "school sweater Bathinda", "school track suit Bathinda",
-    "Delhi Public School Bathinda uniform", "DPS Bathinda uniform", "St. Xavier School Bathinda uniform",
-    "St. Joseph School Bathinda uniform", "Silver Oaks School Bathinda uniform", "DAV Public School Bathinda uniform",
-    "Amrik Singh Road Bathinda shop", "MCB Bathinda uniform store", "Bathinda Punjab uniform dealer",
-    "order school uniform online Punjab", "school uniform doorstep delivery", "school uniform online shopping India",
-    "affordable school uniforms Punjab", "best school uniform store Bathinda", "premium school uniforms Punjab",
-    "nursery to class 12 uniform", "wholesale school uniform Bathinda",
+    // Brand
+    "B'Smart Dresses", "BSmart Dresses Bathinda", "B Smart Dresses",
+    // Core local intent
+    "school uniforms Bathinda", "school uniform shop Bathinda", "buy school uniforms online Punjab",
+    "school uniform home delivery Bathinda", "uniform store near me Bathinda",
+    // Product-level
+    "school shirt Bathinda", "school pant uniform", "school skirt uniform",
+    "school tie Bathinda", "school blazer uniform", "school sweater uniform", "school track suit uniform",
+    // School-specific (highest commercial intent)
+    "Delhi Public School Bathinda uniform", "DPS Bathinda uniform",
+    "St. Xavier School Bathinda uniform", "St. Joseph School Bathinda uniform",
+    "Silver Oaks School Bathinda uniform", "DAV Public School Bathinda uniform",
+    "St. Paul's School Bathinda uniform",
+    // Local
+    "Amrik Singh Road Bathinda uniform shop", "Bathinda Punjab school uniform dealer",
+    // Long-tail
+    "nursery to class 12 school uniform", "wholesale school uniform Bathinda Punjab",
+    "affordable school uniforms Punjab", "premium school uniforms Punjab",
   ],
   alternates: { canonical: "https://bsmartdresses.com" },
   robots: {
-    index: true, follow: true, nocache: false,
-    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
+    index: true,
+    follow: true,
+    nocache: false,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
   },
   verification: {
     google: "REPLACE_WITH_GOOGLE_SEARCH_CONSOLE_CODE",
@@ -43,16 +59,27 @@ export const metadata = {
     other: { "msvalidate.01": ["REPLACE_WITH_BING_WEBMASTER_CODE"] },
   },
   openGraph: {
-    type: "website", locale: "en_IN", url: "https://bsmartdresses.com",
+    type: "website",
+    locale: "en_IN",
+    url: "https://bsmartdresses.com",
     siteName: "B'Smart Dresses Bathinda",
     title: "B'Smart Dresses - Premium School Uniforms | Bathinda, Punjab",
-    description: "Order quality school uniforms online from B'Smart Dresses, Bathinda. Serving DPS, St. Xavier, St. Joseph, Silver Oaks, DAV & 10+ top schools.",
-    images: [{ url: "/logo.png", width: 1200, height: 630, alt: "B'Smart Dresses Bathinda - School Uniform Store" }],
+    description:
+      "Order quality school uniforms online from B'Smart Dresses, Bathinda. Serving DPS, St. Xavier, St. Joseph, Silver Oaks, DAV & 10+ top schools.",
+    images: [
+      {
+        url: "/logo.png",
+        width: 1200,
+        height: 630,
+        alt: "B'Smart Dresses Bathinda - School Uniform Store",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "B'Smart Dresses Bathinda - School Uniforms & Home Delivery",
-    description: "Punjab's premium school uniform store. Order online for DPS, St. Xavier, Silver Oaks & more. Fast doorstep delivery.",
+    description:
+      "Punjab's premium school uniform store. Order online for DPS, St. Xavier, Silver Oaks & more. Fast doorstep delivery.",
     images: ["/logo.png"],
   },
   icons: { icon: "/logo.png", apple: "/logo.png", shortcut: "/logo.png" },
@@ -85,12 +112,14 @@ export const viewport = {
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "ClothingStore",
+  "@id": "https://bsmartdresses.com/#organization",
   name: "B'Smart Dresses",
   alternateName: ["BSmart Dresses", "B Smart Dresses Bathinda"],
   url: "https://bsmartdresses.com",
   logo: "https://bsmartdresses.com/logo.png",
   image: "https://bsmartdresses.com/logo.png",
-  description: "B'Smart Dresses is Bathinda's trusted school uniform store offering premium quality uniforms for top schools in Punjab with fast doorstep delivery.",
+  description:
+    "B'Smart Dresses is Bathinda's trusted school uniform store offering premium quality uniforms for top schools in Punjab with fast doorstep delivery.",
   telephone: "+91-9888388170",
   priceRange: "Rs",
   currenciesAccepted: "INR",
@@ -104,13 +133,23 @@ const jsonLd = {
     addressCountry: "IN",
   },
   geo: { "@type": "GeoCoordinates", latitude: 30.211, longitude: 74.9455 },
-  openingHoursSpecification: [{
-    "@type": "OpeningHoursSpecification",
-    dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-    opens: "10:00",
-    closes: "19:00",
-  }],
-  sameAs: ["https://bsmartdresses.com"],
+  areaServed: {
+    "@type": "City",
+    name: "Bathinda",
+    containedInPlace: { "@type": "State", name: "Punjab" },
+  },
+  openingHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      opens: "10:00",
+      closes: "19:00",
+    },
+  ],
+  sameAs: [
+    "https://bsmartdresses.com",
+    // Add real social profiles here (Facebook/Instagram) — sameAs signals boost entity trust
+  ],
   hasOfferCatalog: {
     "@type": "OfferCatalog",
     name: "School Uniforms",
@@ -129,6 +168,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en-IN" className={plusJakartaSans.variable}>
       <head>
+        {/* Preconnect for Google Fonts / any external asset host — speeds up LCP */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

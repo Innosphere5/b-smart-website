@@ -16,25 +16,27 @@ import {
   CheckCircle2
 } from "lucide-react";
 import { useCart } from "@/lib/CartContext";
+import { useAuth } from "@/lib/AuthContext";
 
 const API_BASE_URL = "";
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const { cartItems, cartSubtotal, deliveryFee, cartTotal, clearCart, recordPlacedOrder } = useCart();
 
-  // Customer Form State
+  // Customer Form State - Initialized completely blank for user to input their own data
   const [formData, setFormData] = useState({
-    firstName: "Rahul",
-    lastName: "Sharma",
-    mobile: "9876543210",
-    address1: "House No. 142, Street 4, Model Town",
-    address2: "Near Kali Mata Temple",
-    city: "Bathinda",
-    state: "Punjab",
-    postal: "151001",
-    school: cartItems[0]?.school || "Delhi Public School",
-    notes: "Please call on arrival before delivery."
+    firstName: "",
+    lastName: "",
+    mobile: "",
+    address1: "",
+    address2: "",
+    city: "",
+    state: "",
+    postal: "",
+    school: cartItems[0]?.school || "",
+    notes: ""
   });
 
   const [loading, setLoading] = useState(false);
@@ -79,7 +81,8 @@ export default function CheckoutPage() {
     const orderPayload = {
       customerName: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
       customerMobile: formData.mobile.trim(),
-      school: formData.school || cartItems[0]?.school || "Delhi Public School",
+      customerEmail: user?.email || "",
+      school: formData.school || cartItems[0]?.school || "General School",
       deliveryAddress: {
         address1: formData.address1.trim(),
         address2: formData.address2.trim(),
@@ -234,7 +237,7 @@ export default function CheckoutPage() {
                     required
                     type="tel"
                     className="field-input font-bold text-[#881337] text-xs sm:text-sm"
-                    placeholder="e.g. 9876543210"
+                    placeholder="Enter 10-digit mobile number"
                     value={formData.mobile}
                     onChange={(e) => handleInputChange("mobile", e.target.value)}
                   />
@@ -257,7 +260,7 @@ export default function CheckoutPage() {
                     id="address1"
                     required
                     className="field-input font-semibold text-xs sm:text-sm"
-                    placeholder="e.g. House No. 142, Street 4, Model Town"
+                    placeholder="House / Flat No., Street, Sector"
                     value={formData.address1}
                     onChange={(e) => handleInputChange("address1", e.target.value)}
                   />
@@ -269,7 +272,7 @@ export default function CheckoutPage() {
                   <input
                     id="address2"
                     className="field-input font-semibold text-xs sm:text-sm"
-                    placeholder="e.g. Near Kali Mata Temple"
+                    placeholder="Landmark or nearby area (Optional)"
                     value={formData.address2}
                     onChange={(e) => handleInputChange("address2", e.target.value)}
                   />
@@ -283,7 +286,7 @@ export default function CheckoutPage() {
                       id="city"
                       required
                       className="field-input font-semibold text-xs sm:text-sm"
-                      placeholder="Bathinda"
+                      placeholder="Enter city"
                       value={formData.city}
                       onChange={(e) => handleInputChange("city", e.target.value)}
                     />
@@ -296,7 +299,7 @@ export default function CheckoutPage() {
                       id="state"
                       required
                       className="field-input font-semibold text-xs sm:text-sm"
-                      placeholder="Punjab"
+                      placeholder="Enter state"
                       value={formData.state}
                       onChange={(e) => handleInputChange("state", e.target.value)}
                     />
@@ -309,7 +312,7 @@ export default function CheckoutPage() {
                       id="postal"
                       required
                       className="field-input font-bold text-xs sm:text-sm"
-                      placeholder="151001"
+                      placeholder="Enter 6-digit pincode"
                       value={formData.postal}
                       onChange={(e) => handleInputChange("postal", e.target.value)}
                     />
@@ -331,7 +334,7 @@ export default function CheckoutPage() {
                   <input
                     id="school"
                     className="field-input font-bold text-[#881337] text-xs sm:text-sm"
-                    placeholder="Delhi Public School"
+                    placeholder="Enter school name (Optional)"
                     value={formData.school}
                     onChange={(e) => handleInputChange("school", e.target.value)}
                   />
