@@ -104,7 +104,7 @@ export default function OrderConfirmationPage({ searchParams }) {
               {isCompleted
                 ? "Order Completed & Verified! ✓"
                 : isAccepted
-                ? "Order Confirmed by School Admin! 🎉"
+                ? "Order Confirmed by Admin! 🎉"
                 : "Order Placed Successfully!"}
             </h1>
             <p className="mt-1 text-xs md:text-sm font-bold text-yellow-100">
@@ -134,7 +134,7 @@ export default function OrderConfirmationPage({ searchParams }) {
                       </span>
                     </p>
                     <p className="text-xs font-semibold text-emerald-800">
-                      Our school uniform team has packaged your items and is heading to your address.
+                      Our team has packaged your items and is heading to your address.
                     </p>
                   </div>
                 </div>

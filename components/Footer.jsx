@@ -84,7 +84,7 @@ export default function Footer() {
                 <h3 className="text-sm sm:text-base font-black text-white uppercase">Terms &amp; Conditions</h3>
               </div>
               <ol className="mt-2 text-[10px] font-semibold text-yellow-100 leading-snug list-none space-y-1">
-                <li>1. Any return or exchange of the product can be done within 7 days of purchase at our store.</li>
+                <li>1. Any return or exchange of the product can be done within 7 days of purchase at our physical store.</li>
                 <li>2. Original receipt or invoice is required.</li>
                 <li>3. Clothes should be unworn, unwashed and with all original tags unbroken should be there in same condition.</li>
                 <li>4. No Guarantee No Claim on any product.</li>
