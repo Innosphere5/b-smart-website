@@ -306,6 +306,34 @@ export function CartProvider({ children }) {
     return null;
   };
 
+  // Cancel Order (User cancels pending order - stock gets restored)
+  const cancelOrder = async (orderId) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/orders/${orderId}/cancel`, {
+        method: "PUT",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          setActiveOrders((prev) =>
+            prev.map((o) =>
+              o.id === orderId
+                ? { ...o, status: "cancelled", ...data.order }
+                : o
+            )
+          );
+          return data.order;
+        }
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to cancel order');
+      }
+    } catch (err) {
+      console.error("Error cancelling order:", err);
+      throw err;
+    }
+  };
+
   // Calculated totals: Universal Free Delivery & ₹500 Minimum Order
   const cartCount = cartItems.reduce((sum, item) => sum + (item.qty || 1), 0);
   const cartSubtotal = cartItems.reduce(
@@ -346,6 +374,7 @@ export function CartProvider({ children }) {
         activeOrders,
         recordPlacedOrder,
         completeOrder,
+        cancelOrder,
         latestAcceptedOrder,
         latestActiveOrder,
         fetchActiveOrders,

@@ -15,7 +15,9 @@ import {
   CheckCircle2,
   Clock,
   ExternalLink,
-  ShoppingBag
+  ShoppingBag,
+  XCircle,
+  AlertTriangle
 } from "lucide-react";
 import { useCart } from "@/lib/CartContext";
 import { useNotifications } from "@/lib/NotificationContext";
@@ -31,10 +33,11 @@ const SIDEBAR_LINKS = [
 ];
 
 export default function OrdersPage() {
-  const { activeOrders, completeOrder } = useCart();
+  const { activeOrders, completeOrder, cancelOrder } = useCart();
   const { isLiveConnected } = useNotifications();
   const { user, logout } = useAuth();
   const [completingId, setCompletingId] = useState(null);
+  const [cancellingId, setCancellingId] = useState(null);
 
   const handleComplete = async (orderId) => {
     setCompletingId(orderId);
@@ -44,6 +47,20 @@ export default function OrdersPage() {
       console.error(e);
     } finally {
       setCompletingId(null);
+    }
+  };
+
+  const handleCancel = async (orderId) => {
+    if (!window.confirm("Are you sure you want to cancel this order? This will cancel the order and return the reserved uniform stock back to inventory.")) {
+      return;
+    }
+    setCancellingId(orderId);
+    try {
+      await cancelOrder(orderId);
+    } catch (e) {
+      alert(e.message || "Failed to cancel order");
+    } finally {
+      setCancellingId(null);
     }
   };
 
@@ -129,6 +146,8 @@ export default function OrdersPage() {
                 const isAccepted = order.status === "accepted";
                 const isCompleted = order.status === "completed" || order.userCompleted;
                 const isDeclined = order.status === "declined";
+                const isCancelled = order.status === "cancelled";
+                const isPending = order.status === "pending" || (!isAccepted && !isCompleted && !isDeclined && !isCancelled);
                 const orderNum = order.orderNumber || order.id;
 
                 return (
@@ -167,6 +186,8 @@ export default function OrdersPage() {
                               ? "bg-blue-100 text-blue-900 border border-blue-300"
                               : isDeclined
                               ? "bg-red-100 text-red-900 border border-red-300"
+                              : isCancelled
+                              ? "bg-rose-100 text-rose-900 border border-rose-300"
                               : "bg-amber-100 text-amber-900 border border-amber-300"
                           }`}
                         >
@@ -212,6 +233,22 @@ export default function OrdersPage() {
                       </div>
                     )}
 
+                    {/* Cancelled Badge */}
+                    {isCancelled && (
+                      <div className="mt-3.5 rounded-xl bg-rose-50 border border-rose-200 p-2.5 flex items-center gap-2 text-xs font-black text-rose-900">
+                        <XCircle size={16} className="text-rose-600 shrink-0" />
+                        <span>Order Cancelled by Customer • Stock Restored to Inventory ✓</span>
+                      </div>
+                    )}
+
+                    {/* Declined Badge */}
+                    {isDeclined && (
+                      <div className="mt-3.5 rounded-xl bg-red-50 border border-red-200 p-2.5 flex items-center gap-2 text-xs font-black text-red-900">
+                        <AlertTriangle size={16} className="text-red-600 shrink-0" />
+                        <span>Order Declined by Admin {order.declineReason ? `(${order.declineReason})` : ''} • Stock Restored to Inventory ✓</span>
+                      </div>
+                    )}
+
                     {/* Items List */}
                     <div className="mt-3.5 space-y-2">
                       {(order.items || []).map((item, i) => (
@@ -243,6 +280,17 @@ export default function OrdersPage() {
                       </p>
 
                       <div className="flex items-center gap-2">
+                        {isPending && (
+                          <button
+                            onClick={() => handleCancel(order.id)}
+                            disabled={cancellingId === order.id}
+                            className="flex items-center gap-1.5 rounded-xl border border-rose-300 bg-rose-50 px-3 py-1.5 text-xs font-black text-rose-700 hover:bg-rose-100 transition cursor-pointer"
+                          >
+                            <XCircle size={14} />
+                            <span>{cancellingId === order.id ? "Cancelling..." : "Cancel Order"}</span>
+                          </button>
+                        )}
+
                         <a
                           href={`${API_BASE_URL}/api/orders/${order.id}/pdf`}
                           target="_blank"

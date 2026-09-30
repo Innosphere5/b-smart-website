@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { clearProductsCache } from '@/app/api/products/route';
 
 function mapFromDb(row) {
   if (!row) return null;
@@ -86,6 +87,55 @@ export async function PUT(request, { params }) {
     // Trigger notification if status changed
     if (body.status === 'accepted' || body.status === 'declined') {
       const isAccepted = body.status === 'accepted';
+
+      // 🔥 RESTORE STOCK ON DECLINE: Add stock back for each product in the order
+      if (!isAccepted && updatedOrder) {
+        try {
+          const orderItems = updatedOrder.items || [];
+          if (Array.isArray(orderItems) && orderItems.length > 0) {
+            for (const item of orderItems) {
+              const productId = String(item.productId || item.id || '');
+              if (!productId) continue;
+              const size = String(item.size || '');
+              const qty = Number(item.qty || 1);
+
+              const { data: product } = await supabase
+                .from('products')
+                .select('id, name, stock_quantity, size_stocks')
+                .eq('id', productId)
+                .maybeSingle();
+
+              if (product) {
+                const currentStock = Number(product.stock_quantity ?? 0);
+                const newStockQuantity = currentStock + qty;
+                let currentSizeStocks = product.size_stocks || {};
+                if (typeof currentSizeStocks === 'string') {
+                  try { currentSizeStocks = JSON.parse(currentSizeStocks); } catch (e) { currentSizeStocks = {}; }
+                }
+                const newSizeStocks = { ...currentSizeStocks };
+                if (size) {
+                  newSizeStocks[size] = (Number(newSizeStocks[size] ?? 0)) + qty;
+                }
+
+                await supabase
+                  .from('products')
+                  .update({
+                    stock_quantity: newStockQuantity,
+                    size_stocks: newSizeStocks,
+                    in_stock: newStockQuantity > 0,
+                  })
+                  .eq('id', productId);
+
+                console.log(`♻️ Stock restored for "${product.name}": ${currentStock} → ${newStockQuantity} (+${qty})`);
+              }
+            }
+            clearProductsCache();
+          }
+        } catch (stockErr) {
+          console.error('❌ Stock restoration error on decline:', stockErr.message || stockErr);
+        }
+      }
+
       try {
         await supabase.from('notifications').insert([{
           id: `notif-${Date.now()}`,

@@ -42,6 +42,11 @@ let serverProductsCache = null;
 let lastServerFetchTime = 0;
 const SERVER_CACHE_TTL = 15000; // 15 seconds server-side cache
 
+export function clearProductsCache() {
+  serverProductsCache = null;
+  lastServerFetchTime = 0;
+}
+
 export async function GET() {
   try {
     // Return cached products if fresh (< 15 seconds) to reduce latency and DB load

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { clearProductsCache } from '@/app/api/products/route';
 
 // Shared fallback orders in case Supabase table is not yet created
 const fallbackOrders = [
@@ -296,6 +297,61 @@ export async function POST(request) {
       }
     } catch (e) {
       console.error('Exception inserting order to Supabase:', e);
+    }
+
+    // 🔥 DEDUCT STOCK: Decrease stock_quantity and size_stocks for each ordered product
+    try {
+      // Group items by productId
+      const productQtyMap = {};
+      for (const item of items) {
+        const productId = String(item.productId || item.id || '');
+        if (!productId) continue;
+        const size = String(item.size || '');
+        const qty = Number(item.qty || 1);
+        if (!productQtyMap[productId]) {
+          productQtyMap[productId] = { totalQty: 0, sizeDeductions: {} };
+        }
+        productQtyMap[productId].totalQty += qty;
+        if (size) {
+          productQtyMap[productId].sizeDeductions[size] =
+            (productQtyMap[productId].sizeDeductions[size] || 0) + qty;
+        }
+      }
+
+      for (const [productId, { totalQty, sizeDeductions }] of Object.entries(productQtyMap)) {
+        const { data: product } = await supabase
+          .from('products')
+          .select('id, name, stock_quantity, size_stocks')
+          .eq('id', productId)
+          .maybeSingle();
+
+        if (product) {
+          const currentStock = Number(product.stock_quantity ?? 0);
+          const newStockQuantity = Math.max(0, currentStock - totalQty);
+          let currentSizeStocks = product.size_stocks || {};
+          if (typeof currentSizeStocks === 'string') {
+            try { currentSizeStocks = JSON.parse(currentSizeStocks); } catch (e2) { currentSizeStocks = {}; }
+          }
+          const newSizeStocks = { ...currentSizeStocks };
+          for (const [size, deductQty] of Object.entries(sizeDeductions)) {
+            newSizeStocks[size] = Math.max(0, (Number(newSizeStocks[size] ?? 0)) - deductQty);
+          }
+
+          await supabase
+            .from('products')
+            .update({
+              stock_quantity: newStockQuantity,
+              size_stocks: newSizeStocks,
+              in_stock: newStockQuantity > 0,
+            })
+            .eq('id', productId);
+
+          console.log(`📦 Stock deducted for "${product.name}": ${currentStock} → ${newStockQuantity} (−${totalQty})`);
+        }
+      }
+      clearProductsCache();
+    } catch (stockErr) {
+      console.error('❌ Stock deduction error:', stockErr.message || stockErr);
     }
 
     // Try creating notification

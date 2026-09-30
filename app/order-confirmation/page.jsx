@@ -17,7 +17,9 @@ import {
   School,
   ArrowRight,
   ShieldCheck,
-  ShoppingBag
+  ShoppingBag,
+  XCircle,
+  AlertTriangle
 } from "lucide-react";
 import { useCart } from "@/lib/CartContext";
 
@@ -27,10 +29,11 @@ export default function OrderConfirmationPage({ searchParams }) {
   const resolvedParams = searchParams ? (typeof searchParams.then === 'function' ? use(searchParams) : searchParams) : {};
   const orderId = resolvedParams?.orderId || "BS-1024";
 
-  const { activeOrders, completeOrder } = useCart();
+  const { activeOrders, completeOrder, cancelOrder } = useCart();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [completing, setCompleting] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
   const [completedSuccess, setCompletedSuccess] = useState(false);
 
   const fetchOrderDetails = async () => {
@@ -75,11 +78,30 @@ export default function OrderConfirmationPage({ searchParams }) {
     }
   };
 
+  const handleCancelOrder = async () => {
+    if (!order) return;
+    if (!window.confirm("Are you sure you want to cancel this order? This will release reserved uniform stock back to inventory.")) {
+      return;
+    }
+    setCancelling(true);
+    try {
+      await cancelOrder(order.id);
+      fetchOrderDetails();
+    } catch (err) {
+      alert(err.message || "Failed to cancel order");
+    } finally {
+      setCancelling(false);
+    }
+  };
+
   const isAccepted = order?.status === "accepted";
   const isCompleted = order?.status === "completed" || order?.userCompleted;
+  const isDeclined = order?.status === "declined";
+  const isCancelled = order?.status === "cancelled";
+  const isPending = order?.status === "pending";
 
   const STATUS_STEPS = [
-    { label: "Order Placed", complete: true, active: order?.status === "pending" },
+    { label: "Order Placed", complete: true, active: isPending },
     {
       label: isAccepted ? `Accepted (${order.deliveryTime || "Scheduled"})` : "Admin Confirmation",
       complete: isAccepted || isCompleted,
@@ -96,12 +118,36 @@ export default function OrderConfirmationPage({ searchParams }) {
       <div className="mx-auto max-w-3xl px-6 py-10 md:py-12">
         <div className="overflow-hidden rounded-3xl border-2 border-[#FCD34D] bg-white shadow-xl">
           {/* Top Banner */}
-          <div className="bg-gradient-to-r from-[#7F1D1D] via-[#9F1239] to-[#881337] px-6 py-8 text-center text-white">
-            <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FACC15] text-[#7F1D1D] shadow-lg">
-              <CheckCircle2 size={36} />
+          <div
+            className={`px-6 py-8 text-center text-white ${
+              isCancelled
+                ? "bg-gradient-to-r from-gray-800 via-rose-900 to-rose-950"
+                : isDeclined
+                ? "bg-gradient-to-r from-red-800 via-red-900 to-[#7F1D1D]"
+                : "bg-gradient-to-r from-[#7F1D1D] via-[#9F1239] to-[#881337]"
+            }`}
+          >
+            <div
+              className={`mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg ${
+                isCancelled || isDeclined
+                  ? "bg-white text-rose-700"
+                  : "bg-[#FACC15] text-[#7F1D1D]"
+              }`}
+            >
+              {isCancelled ? (
+                <XCircle size={36} />
+              ) : isDeclined ? (
+                <AlertTriangle size={36} />
+              ) : (
+                <CheckCircle2 size={36} />
+              )}
             </div>
             <h1 className="text-2xl md:text-3xl font-black">
-              {isCompleted
+              {isCancelled
+                ? "Order Cancelled by Customer"
+                : isDeclined
+                ? "Order Declined by Admin"
+                : isCompleted
                 ? "Order Completed & Verified! ✓"
                 : isAccepted
                 ? "Order Confirmed by Admin! 🎉"
@@ -114,6 +160,32 @@ export default function OrderConfirmationPage({ searchParams }) {
               </span>
             </p>
           </div>
+
+          {/* Cancellation Notice Banner */}
+          {isCancelled && (
+            <div className="border-b-2 border-rose-300 bg-rose-50 p-5 flex items-center gap-3">
+              <XCircle size={22} className="text-rose-600 shrink-0" />
+              <div>
+                <h3 className="text-xs font-black uppercase text-rose-950">Order Cancelled</h3>
+                <p className="text-xs font-semibold text-rose-800">
+                  This order was cancelled by customer. The reserved uniform items and stock have been successfully restored to inventory.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Declined Notice Banner */}
+          {isDeclined && (
+            <div className="border-b-2 border-red-300 bg-red-50 p-5 flex items-center gap-3">
+              <AlertTriangle size={22} className="text-red-600 shrink-0" />
+              <div>
+                <h3 className="text-xs font-black uppercase text-red-950">Order Declined</h3>
+                <p className="text-xs font-semibold text-red-800">
+                  Reason: {order?.declineReason || "Item unavailable"}. Reserved inventory stock has been restored.
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Admin Live Delivery Time Alert Box */}
           {isAccepted && (
@@ -279,8 +351,20 @@ export default function OrderConfirmationPage({ searchParams }) {
               </a>
             </div>
 
-            {/* Action Bar: PDF Order Form & Continue Shopping */}
+            {/* Action Bar: PDF Order Form & Continue Shopping & Cancel Order */}
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              {isPending && (
+                <button
+                  type="button"
+                  onClick={handleCancelOrder}
+                  disabled={cancelling}
+                  className="flex items-center justify-center gap-2 rounded-xl border-2 border-rose-400 bg-rose-50 px-5 py-3.5 text-sm font-black text-rose-700 hover:bg-rose-100 transition shadow-xs cursor-pointer"
+                >
+                  <XCircle size={18} />
+                  <span>{cancelling ? "Cancelling..." : "Cancel Order"}</span>
+                </button>
+              )}
+
               <a
                 href={`${API_BASE_URL}/api/orders/${order?.id || orderId}/pdf`}
                 target="_blank"
