@@ -213,7 +213,7 @@ export async function GET(request, { params }) {
         <div style="margin-top: 36px; text-align: center; font-size: 11px; color: #9CA3AF; border-top: 1px solid #E5E7EB; padding-top: 16px;">
           <strong style="color:#881337; display:block; margin-bottom:6px;">TERMS &amp; CONDITIONS</strong>
           <div style="text-align:left; max-width:600px; margin:auto; line-height:1.7;">
-            1. Any return or exchange of the product can be done within 7 days of purchase at our store.<br>
+            1. Any return or exchange of the product can be done within 7 days of purchase at our physical store.<br>
             2. Original receipt or invoice is required.<br>
             3. Clothes should be unworn, unwashed and with all original tags unbroken should be there in same condition.<br>
             4. No Guarantee No Claim on any product.<br>
