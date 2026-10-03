@@ -60,7 +60,7 @@ export async function GET(request, { params }) {
       if (!error && data) {
         order = mapFromDb(data);
       }
-    } catch (e) {}
+    } catch (e) { }
 
     if (!order) {
       return NextResponse.json({ success: false, message: 'Order not found for PDF' }, { status: 404 });
@@ -216,8 +216,9 @@ export async function GET(request, { params }) {
             1. Any return or exchange of the product can be done within 7 days of purchase at our physical store.<br>
             2. Original receipt or invoice is required.<br>
             3. Clothes should be unworn, unwashed and with all original tags unbroken should be there in same condition.<br>
-            4. No Guarantee No Claim on any product.<br>
-            5. Subject to Bathinda Jurisdiction only.
+             4. No Guarantee No Claim on any product.<br>
+             5. Subject to Bathinda Jurisdiction only.<br>
+             6. Visit our physical store: #MCB-Z304654, Dr. Mela Ram Hospital Road, Amrik Singh Road, Bathinda (Punjab) | GSTIN: 03ANXPG2252L1ZS | Ph: +91 98883-88170
           </div>
         </div>
       </body>
