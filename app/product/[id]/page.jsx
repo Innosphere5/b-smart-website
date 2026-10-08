@@ -7,10 +7,11 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import GarmentThumb from "@/components/GarmentThumb";
 import Badge from "@/components/Badge";
-import { ShoppingCart, Minus, Plus, Cloud, CheckCircle2, ShieldCheck, Check, ArrowRight } from "lucide-react";
+import { ShoppingCart, Minus, Plus, Cloud, CheckCircle2, ShieldCheck, Check, ArrowRight, AlertTriangle, Calendar } from "lucide-react";
 import { getProductById } from "@/data/products";
 import { getLiveProductById, getCachedProducts, cleanProductImageUrl } from "@/lib/api";
 import { useCart } from "@/lib/CartContext";
+import { useShopStatus } from "@/lib/ShopStatusContext";
 import ScrollProgressBar from "@/components/ScrollProgressBar";
 
 export default function ProductDetailPage() {
@@ -19,6 +20,7 @@ export default function ProductDetailPage() {
   const productId = typeof params?.id === "string" ? params.id : Array.isArray(params?.id) ? params.id[0] : "";
 
   const { addToCart } = useCart();
+  const { isClosed, reopenDateFormatted, closureDays } = useShopStatus();
   
   // Fast initial product lookup from static data or cached products
   const [product, setProduct] = useState(() => {
@@ -356,6 +358,23 @@ export default function ProductDetailPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Store Closure Notice if Shop is Closed */}
+              {isClosed && (
+                <div className="mt-4 rounded-xl bg-linear-to-r from-[#FFF1F2] to-[#FFFBEB] border-2 border-[#FECDD3] p-3.5 shadow-xs text-xs text-[#991B1B]">
+                  <div className="flex items-start gap-2.5">
+                    <AlertTriangle size={18} className="text-[#E11D48] shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-black text-xs sm:text-[13px] text-[#9F1239]">
+                        Store Temporarily Closed for {closureDays} {closureDays === 1 ? 'Day' : 'Days'}
+                      </p>
+                      <p className="text-[11px] sm:text-xs text-[#7F1D1D] mt-0.5 leading-snug">
+                        Reopening on <strong className="underline decoration-[#E11D48]/50">{reopenDateFormatted}</strong>. You can place your order now; orders are queued and will be dispatched promptly upon reopening!
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Add to Cart CTA — desktop version */}
               <div className="mt-6 sm:mt-8 space-y-3 hidden md:block">

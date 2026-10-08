@@ -22,6 +22,7 @@ import {
   AlertTriangle
 } from "lucide-react";
 import { useCart } from "@/lib/CartContext";
+import { useShopStatus } from "@/lib/ShopStatusContext";
 
 const API_BASE_URL = "";
 
@@ -30,6 +31,7 @@ export default function OrderConfirmationPage({ searchParams }) {
   const orderId = resolvedParams?.orderId || "BS-1024";
 
   const { activeOrders, completeOrder, cancelOrder } = useCart();
+  const { isClosed, reopenDateFormatted, closureDays } = useShopStatus();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [completing, setCompleting] = useState(false);
@@ -160,6 +162,21 @@ export default function OrderConfirmationPage({ searchParams }) {
               </span>
             </p>
           </div>
+
+          {/* Store Closure Fulfillment Schedule Reminder */}
+          {isClosed && !isCancelled && !isDeclined && (
+            <div className="border-b-2 border-amber-300 bg-amber-50 p-4 sm:p-5 flex items-start gap-3">
+              <Clock size={20} className="text-amber-700 shrink-0 mt-0.5" />
+              <div>
+                <h3 className="text-xs sm:text-sm font-black uppercase text-amber-950">
+                  Fulfillment Scheduled: Reopening on {reopenDateFormatted}
+                </h3>
+                <p className="text-xs text-amber-900 mt-0.5">
+                  Our store is closed for {closureDays} {closureDays === 1 ? 'day' : 'days'}. Your uniform order has been recorded in our system and will be prioritized and prepared for dispatch promptly when we reopen on <strong>{reopenDateFormatted}</strong>.
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Cancellation Notice Banner */}
           {isCancelled && (

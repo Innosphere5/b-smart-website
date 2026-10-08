@@ -64,9 +64,10 @@ export function NotificationProvider({ children }) {
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.notifications)) {
-          // Filter out order_created messages which are admin-facing notifications
+          // Filter out order_created messages which are admin-facing notifications, and system rows
           const filtered = data.notifications.filter(
-            (n) => n.type !== 'order_created' || n.targetRole === 'customer'
+            (n) => (!n.id?.startsWith('sys_') && n.type !== 'shop_status' && n.type !== 'system_masters') &&
+                   (n.type !== 'order_created' || n.targetRole === 'customer')
           );
           setNotifications(filtered);
         }
@@ -87,6 +88,8 @@ export function NotificationProvider({ children }) {
   // Handle incoming real-time notification
   const handleIncomingNotification = useCallback((notif) => {
     if (!notif || !notif.id) return;
+    // Don't show system config rows (store closure, master registry) in customer toasts
+    if (String(notif.id).startsWith('sys_') || notif.type === 'shop_status' || notif.type === 'system_masters') return;
     // Don't show admin-facing order_created notifications to customers
     if (notif.type === 'order_created' && notif.targetRole !== 'customer') return;
 

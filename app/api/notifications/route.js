@@ -34,7 +34,10 @@ export async function GET(request) {
 
     let notifs = fallbackNotifs;
     if (!error && Array.isArray(data) && data.length > 0) {
-      notifs = data.map(mapFromDb).filter(Boolean);
+      notifs = data
+        .map(mapFromDb)
+        .filter(Boolean)
+        .filter((n) => !n.id.startsWith('sys_') && n.type !== 'shop_status' && n.type !== 'system_masters');
     }
 
     if (role && role !== 'all') {

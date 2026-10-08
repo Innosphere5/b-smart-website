@@ -3,7 +3,10 @@ import "./globals.css";
 import { CartProvider } from "@/lib/CartContext";
 import { NotificationProvider } from "@/lib/NotificationContext";
 import { AuthProvider } from "@/lib/AuthContext";
+import { ShopStatusProvider } from "@/lib/ShopStatusContext";
 import NotificationToast from "@/components/NotificationToast";
+import ShopClosureBanner from "@/components/ShopClosureBanner";
+import ShopClosurePopup from "@/components/ShopClosurePopup";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -178,12 +181,16 @@ export default function RootLayout({ children }) {
       </head>
       <body className="min-h-screen w-full bg-[#FEF8E7] font-sans antialiased text-navy-800 selection:bg-accent/40">
         <AuthProvider>
-          <NotificationProvider>
-            <CartProvider>
-              {children}
-              <NotificationToast />
-            </CartProvider>
-          </NotificationProvider>
+          <ShopStatusProvider>
+            <NotificationProvider>
+              <CartProvider>
+                <ShopClosureBanner />
+                {children}
+                <NotificationToast />
+                <ShopClosurePopup />
+              </CartProvider>
+            </NotificationProvider>
+          </ShopStatusProvider>
         </AuthProvider>
       </body>
     </html>

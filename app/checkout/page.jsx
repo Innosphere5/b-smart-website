@@ -13,10 +13,14 @@ import {
   School,
   AlertCircle,
   Loader2,
-  CheckCircle2
+  CheckCircle2,
+  Calendar,
+  Clock,
+  X
 } from "lucide-react";
 import { useCart } from "@/lib/CartContext";
 import { useAuth } from "@/lib/AuthContext";
+import { useShopStatus } from "@/lib/ShopStatusContext";
 
 const API_BASE_URL = "";
 
@@ -24,6 +28,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { user } = useAuth();
   const { cartItems, cartSubtotal, deliveryFee, cartTotal, clearCart, recordPlacedOrder } = useCart();
+  const { isClosed, reopenDateFormatted, closureDays, bannerTitle } = useShopStatus();
 
   // Customer Form State - Initialized completely blank for user to input their own data
   const [formData, setFormData] = useState({
@@ -41,6 +46,7 @@ export default function CheckoutPage() {
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [showClosureConfirmModal, setShowClosureConfirmModal] = useState(false);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -75,6 +81,17 @@ export default function CheckoutPage() {
       return;
     }
 
+    // If shop is closed, show dedicated confirmation popup before processing order
+    if (isClosed) {
+      setShowClosureConfirmModal(true);
+      return;
+    }
+
+    await executeOrderPlacement();
+  };
+
+  const executeOrderPlacement = async () => {
+    setShowClosureConfirmModal(false);
     setLoading(true);
     setErrorMsg("");
 
@@ -186,6 +203,30 @@ export default function CheckoutPage() {
         <p className="mt-1 text-[10px] sm:text-xs font-semibold text-gray-600">
           Provide delivery details to place your uniform order and schedule doorstep delivery.
         </p>
+
+        {/* Store Closure Notice Banner on Checkout */}
+        {isClosed && (
+          <div className="mt-4 rounded-xl sm:rounded-2xl border-2 border-[#FECDD3] bg-gradient-to-r from-[#FFF1F2] via-[#FFFBEB] to-[#FFF1F2] p-4 sm:p-5 shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#991B1B] text-[#FEF08A] shadow-xs">
+                <AlertCircle size={20} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-[#FEE2E2] px-2.5 py-0.5 text-[10px] sm:text-xs font-black uppercase text-[#991B1B]">
+                    Store Closed for {closureDays} {closureDays === 1 ? 'Day' : 'Days'}
+                  </span>
+                  <span className="text-xs sm:text-sm font-extrabold text-[#9F1239]">
+                    Reopening on: {reopenDateFormatted}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs sm:text-[13px] font-medium text-slate-700 leading-relaxed">
+                  Please note our physical shop is currently closed. You can complete your order now — all placed orders are confirmed immediately and will be prioritized for fulfillment as soon as we reopen on <strong>{reopenDateFormatted}</strong>.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {errorMsg && (
           <div className="mt-3 sm:mt-4 flex items-center gap-2 sm:gap-2.5 rounded-lg sm:rounded-xl bg-red-50 border-2 border-red-300 p-3 sm:p-4 text-[10px] sm:text-xs font-bold text-red-800">
@@ -432,6 +473,73 @@ export default function CheckoutPage() {
           </aside>
         </form>
       </div>
+
+      {/* ORDER PLACEMENT CLOSURE CONFIRMATION MODAL */}
+      {showClosureConfirmModal && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in"
+        >
+          <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl border-2 border-[#FACC15] animate-in zoom-in-95">
+            <div className="bg-linear-to-r from-[#881337] via-[#9F1239] to-[#881337] p-4 text-white flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FEF08A] text-[#991B1B]">
+                  <AlertCircle size={20} />
+                </div>
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-wider text-[#FEF08A]">Important Notice</span>
+                  <h3 className="text-base font-black text-white">Store Temporarily Closed</h3>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowClosureConfirmModal(false)}
+                className="text-white/80 hover:text-white p-1 rounded-lg"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-3.5">
+              <div className="rounded-xl bg-[#FEF2F2] p-3.5 border border-[#FECDD3]">
+                <div className="flex items-center gap-2 text-xs font-black text-[#991B1B]">
+                  <Calendar size={15} />
+                  <span>Reopening Date: {reopenDateFormatted}</span>
+                </div>
+                <p className="text-xs text-slate-600 mt-1 leading-snug">
+                  Our shop is closed for {closureDays} {closureDays === 1 ? 'day' : 'days'}. We will reopen on <strong>{reopenDateFormatted}</strong>.
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-[#F0FDF4] p-3.5 border border-[#BBF7D0] text-xs text-[#166534] leading-relaxed">
+                <span className="font-bold">What happens next? </span>
+                Your order for ₹{cartTotal.toFixed(2)} will be confirmed and prioritized for fulfillment immediately upon our reopening on <strong>{reopenDateFormatted}</strong>.
+              </div>
+
+              <p className="text-xs font-semibold text-slate-700 text-center pt-1">
+                Would you like to confirm and place your order now?
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowClosureConfirmModal(false)}
+                  className="flex-1 py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition"
+                >
+                  Review My Cart
+                </button>
+                <button
+                  type="button"
+                  onClick={executeOrderPlacement}
+                  className="flex-1 py-2.5 px-3 rounded-xl bg-[#881337] hover:bg-[#9F1239] text-[#FEF08A] font-black text-xs shadow-md transition flex items-center justify-center gap-1.5"
+                >
+                  <CheckCircle2 size={14} /> Confirm &amp; Place Order
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </main>

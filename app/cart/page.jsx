@@ -18,13 +18,17 @@ import {
   Sparkles,
   FileText,
   Truck,
-  Check
+  Check,
+  AlertTriangle,
+  Calendar
 } from "lucide-react";
 import { useCart } from "@/lib/CartContext";
 import { useAuth } from "@/lib/AuthContext";
+import { useShopStatus } from "@/lib/ShopStatusContext";
 
 export default function CartPage() {
   const { user } = useAuth();
+  const { isClosed, reopenDateFormatted, closureDays } = useShopStatus();
   const {
     cartItems,
     cartCount,
@@ -179,6 +183,30 @@ export default function CartPage() {
           </div>
         )}
 
+        {/* Store Closure Notice Banner in Cart */}
+        {isClosed && (
+          <div className="mb-5 sm:mb-6 rounded-xl sm:rounded-2xl border-2 border-[#FECDD3] bg-gradient-to-r from-[#FFF1F2] via-[#FFFBEB] to-[#FFF1F2] p-4 sm:p-5 shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#991B1B] text-[#FEF08A] shadow-xs">
+                <AlertTriangle size={20} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-[#FEE2E2] px-2.5 py-0.5 text-[10px] sm:text-xs font-black uppercase text-[#991B1B]">
+                    Store Closed for {closureDays} {closureDays === 1 ? 'Day' : 'Days'}
+                  </span>
+                  <span className="text-xs sm:text-sm font-extrabold text-[#9F1239]">
+                    Reopening: {reopenDateFormatted}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs sm:text-[13px] font-medium text-slate-700 leading-relaxed">
+                  Our shop is currently closed. You can proceed with checkout now to secure your uniform sizes — all online orders will be confirmed immediately and dispatched as top priority on <strong>{reopenDateFormatted}</strong>.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ======================================================== */}
         {/* 2. MAIN CART ITEMS & SUMMARY LAYOUT                      */}
         {/* ======================================================== */}
@@ -326,7 +354,14 @@ export default function CartPage() {
               <span className="text-lg sm:text-xl font-black text-[#9F1239]">₹{cartTotal.toFixed(2)}</span>
             </div>
 
-            {cartItems.length > 0 ? (
+              {isClosed && cartItems.length > 0 && (
+                <div className="mt-3 rounded-xl bg-[#FFF1F2] border border-[#FECDD3] p-2.5 text-[11px] font-bold text-[#991B1B] flex items-center gap-2">
+                  <AlertTriangle size={15} className="shrink-0 text-[#E11D48]" />
+                  <span>Shop closed until <strong>{reopenDateFormatted}</strong>. Orders ship upon reopening!</span>
+                </div>
+              )}
+
+              {cartItems.length > 0 ? (
               cartSubtotal >= 500 ? (
                 <Link
                   href="/checkout"
