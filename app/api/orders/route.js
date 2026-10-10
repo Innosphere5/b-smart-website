@@ -250,6 +250,36 @@ export async function POST(request) {
       );
     }
 
+    // Verify if delivery orders are closed by admin
+    try {
+      const { data: statusRow } = await supabase
+        .from('notifications')
+        .select('message')
+        .eq('id', 'sys_shop_status')
+        .maybeSingle();
+
+      if (statusRow?.message) {
+        const parsedStatus = JSON.parse(statusRow.message);
+        const isDeliveryClosed = Boolean(
+          parsedStatus?.deliveryOrdersClosed ||
+          parsedStatus?.isClosed ||
+          parsedStatus?.allowOrders === false
+        );
+        if (isDeliveryClosed) {
+          return NextResponse.json(
+            {
+              success: false,
+              message:
+                'We are currently not processing any online orders, Please revisit our website after a few business days.',
+            },
+            { status: 403 }
+          );
+        }
+      }
+    } catch (e) {
+      console.warn('Shop status check exception in POST /api/orders:', e);
+    }
+
     // Determine sequential sequence number
     let nextSeq = 1;
     try {

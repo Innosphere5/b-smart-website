@@ -58,11 +58,11 @@ function getSchoolMeta(schoolName) {
 }
 
 export default function HomePage() {
-  const [products, setProducts] = useState(() => getCachedProducts() || []);
-  const [schoolsList, setSchoolsList] = useState(() => getCachedSchools() || []);
-  const [classesList, setClassesList] = useState(() => getCachedClasses() || []);
-  const [categoriesList, setCategoriesList] = useState(() => getCachedCategories() || []);
-  const [isLoading, setIsLoading] = useState(() => !getCachedProducts());
+  const [products, setProducts] = useState([]);
+  const [schoolsList, setSchoolsList] = useState([]);
+  const [classesList, setClassesList] = useState([]);
+  const [categoriesList, setCategoriesList] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isLive, setIsLive] = useState(false);
   const [selectedSchool, setSelectedSchool] = useState("All");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -70,6 +70,25 @@ export default function HomePage() {
 
   useEffect(() => {
     let isMounted = true;
+
+    // Fast client-side cache population (runs synchronously on mount)
+    const cachedProducts = getCachedProducts();
+    if (cachedProducts && cachedProducts.length > 0) {
+      setProducts(cachedProducts);
+      setIsLoading(false);
+    }
+    const cachedSchools = getCachedSchools();
+    if (cachedSchools && cachedSchools.length > 0) {
+      setSchoolsList(cachedSchools);
+    }
+    const cachedClasses = getCachedClasses();
+    if (cachedClasses && cachedClasses.length > 0) {
+      setClassesList(cachedClasses);
+    }
+    const cachedCategories = getCachedCategories();
+    if (cachedCategories && cachedCategories.length > 0) {
+      setCategoriesList(cachedCategories);
+    }
 
     async function loadCatalog() {
       try {

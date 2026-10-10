@@ -51,6 +51,7 @@ export default function ScrollReveal({
       ref={ref}
       style={style}
       className={`reveal-init ${isVisible ? "reveal-visible" : ""} ${className}`}
+      suppressHydrationWarning
     >
       {children}
     </div>

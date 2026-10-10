@@ -16,7 +16,8 @@ import {
   CheckCircle2,
   Calendar,
   Clock,
-  X
+  X,
+  ChevronDown
 } from "lucide-react";
 import { useCart } from "@/lib/CartContext";
 import { useAuth } from "@/lib/AuthContext";
@@ -76,8 +77,8 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (!formData.address1.trim() || !formData.city.trim() || !formData.postal.trim()) {
-      setErrorMsg("Please enter a complete delivery address with Street, City, and Pincode.");
+    if (!formData.address1.trim() || !formData.city.trim() || !formData.state.trim() || !formData.postal.trim()) {
+      setErrorMsg("Please enter a complete delivery address with Street, City, State, and Pincode.");
       return;
     }
 
@@ -323,40 +324,82 @@ export default function CheckoutPage() {
                     <label className="field-label font-bold text-gray-800 text-[10px] sm:text-xs" htmlFor="city">
                       City *
                     </label>
-                    <input
-                      id="city"
-                      required
-                      className="field-input font-semibold text-xs sm:text-sm"
-                      placeholder="Enter city"
-                      value={formData.city}
-                      onChange={(e) => handleInputChange("city", e.target.value)}
-                    />
+                    <div className="relative">
+                      <select
+                        id="city"
+                        required
+                        className={`field-input font-semibold text-xs sm:text-sm appearance-none pr-8 cursor-pointer ${
+                          !formData.city ? "text-gray-400 font-normal" : "text-[#450A0A] font-semibold"
+                        }`}
+                        value={formData.city}
+                        onChange={(e) => handleInputChange("city", e.target.value)}
+                      >
+                        <option value="" disabled hidden>
+                          Enter city
+                        </option>
+                        <option value="Bathinda" className="text-[#450A0A] font-semibold">
+                          Bathinda
+                        </option>
+                      </select>
+                      <ChevronDown
+                        size={14}
+                        className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400"
+                      />
+                    </div>
                   </div>
                   <div>
                     <label className="field-label font-bold text-gray-800 text-[10px] sm:text-xs" htmlFor="state">
                       State *
                     </label>
-                    <input
-                      id="state"
-                      required
-                      className="field-input font-semibold text-xs sm:text-sm"
-                      placeholder="Enter state"
-                      value={formData.state}
-                      onChange={(e) => handleInputChange("state", e.target.value)}
-                    />
+                    <div className="relative">
+                      <select
+                        id="state"
+                        required
+                        className={`field-input font-semibold text-xs sm:text-sm appearance-none pr-8 cursor-pointer ${
+                          !formData.state ? "text-gray-400 font-normal" : "text-[#450A0A] font-semibold"
+                        }`}
+                        value={formData.state}
+                        onChange={(e) => handleInputChange("state", e.target.value)}
+                      >
+                        <option value="" disabled hidden>
+                          Enter state
+                        </option>
+                        <option value="Punjab" className="text-[#450A0A] font-semibold">
+                          Punjab
+                        </option>
+                      </select>
+                      <ChevronDown
+                        size={14}
+                        className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400"
+                      />
+                    </div>
                   </div>
                   <div className="col-span-2 sm:col-span-1">
                     <label className="field-label font-bold text-gray-800 text-[10px] sm:text-xs" htmlFor="postal">
                       Pincode *
                     </label>
-                    <input
-                      id="postal"
-                      required
-                      className="field-input font-bold text-xs sm:text-sm"
-                      placeholder="Enter 6-digit pincode"
-                      value={formData.postal}
-                      onChange={(e) => handleInputChange("postal", e.target.value)}
-                    />
+                    <div className="relative">
+                      <select
+                        id="postal"
+                        required
+                        className={`field-input font-bold text-xs sm:text-sm appearance-none pr-8 cursor-pointer ${
+                          !formData.postal ? "text-gray-400 font-normal" : "text-[#450A0A] font-bold"
+                        }`}
+                        value={formData.postal}
+                        onChange={(e) => handleInputChange("postal", e.target.value)}
+                      >
+                        <option value="" disabled hidden>
+                          Enter 6-digit pincode
+                        </option>
+                        <option value="151001" className="text-[#450A0A] font-bold">
+                          151001
+                        </option>
+                      </select>
+                      <ChevronDown
+                        size={14}
+                        className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -431,7 +474,7 @@ export default function CheckoutPage() {
               <div className="flex justify-between">
                 <dt>Delivery</dt>
                 <dd className="font-bold text-[#047857]">
-                  FREE (Universal)
+                  FREE (Bathinda only)
                 </dd>
               </div>
               <div className="flex justify-between">

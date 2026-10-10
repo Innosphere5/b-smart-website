@@ -1,9 +1,22 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
+function computeStockStatus(stockQuantity, inStock = true) {
+  const stock = Number(stockQuantity ?? 0);
+  if (stock <= 0 || inStock === false) {
+    return 'Out of Stock';
+  }
+  if (stock === 1) {
+    return 'Low Stock';
+  }
+  return 'In Stock';
+}
+
 function mapFromDb(row) {
   if (!row) return null;
   const stock = Number(row.stock_quantity ?? row.stockQuantity ?? 50);
+  const isInStock = stock > 0 && row.in_stock !== false;
+  const stockStatus = computeStockStatus(stock, isInStock);
   return {
     id: row.id,
     name: row.name,
@@ -19,8 +32,9 @@ function mapFromDb(row) {
     sizesText: row.sizes_text || row.sizesText || 'Multiple Sizes',
     sizePrices: row.size_prices ? (typeof row.size_prices === 'string' ? JSON.parse(row.size_prices) : row.size_prices) : {},
     sizeStocks: row.size_stocks ? (typeof row.size_stocks === 'string' ? JSON.parse(row.size_stocks) : row.size_stocks) : (row.sizeStocks || {}),
-    inStock: stock > 0 && row.in_stock !== false,
+    inStock: isInStock,
     stockQuantity: stock,
+    stockStatus,
     createdAt: row.created_at || new Date().toISOString()
   };
 }

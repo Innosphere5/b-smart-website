@@ -27,12 +27,13 @@ function getDefaultShopStatus() {
 
   return {
     isClosed: false,
+    deliveryOrdersClosed: false,
     closureDays: 2,
     startDate: now.toISOString(),
     reopenDate: reopen.toISOString(),
     reopenDateFormatted: formatted,
     bannerTitle: 'Shop Temporarily Closed for 2 Days',
-    bannerMessage: `Our shop is closed for 2 days. We will reopen on ${formatted}. Online orders placed now will be processed as soon as we reopen!`,
+    bannerMessage: `We are currently not processing any online orders, Please revisit our website after a few business days.`,
     allowOrders: true,
     showPopup: true,
     showTopBanner: true,

@@ -22,15 +22,9 @@ export default function ProductDetailPage() {
   const { addToCart } = useCart();
   const { isClosed, reopenDateFormatted, closureDays } = useShopStatus();
   
-  // Fast initial product lookup from static data or cached products
+  // Fast initial product lookup from static data
   const [product, setProduct] = useState(() => {
-    const staticProd = getProductById(productId);
-    if (staticProd) return staticProd;
-    const cached = getCachedProducts();
-    if (cached) {
-      return cached.find((p) => String(p.id) === String(productId)) || null;
-    }
-    return null;
+    return getProductById(productId) || null;
   });
 
   const [isLoading, setIsLoading] = useState(() => !product);
@@ -40,6 +34,16 @@ export default function ProductDetailPage() {
   const [activeThumb, setActiveThumb] = useState(0);
 
   useEffect(() => {
+    // Fast client-side cache population
+    const cached = getCachedProducts();
+    if (cached) {
+      const match = cached.find((p) => String(p.id) === String(productId));
+      if (match) {
+        setProduct((prev) => prev || match);
+        setIsLoading(false);
+      }
+    }
+
     async function loadProduct() {
       if (productId) {
         try {
@@ -143,7 +147,7 @@ export default function ProductDetailPage() {
     ? Number(product.sizeStocks[selectedSize])
     : (product.stockQuantity !== undefined ? Number(product.stockQuantity) : 10);
   const isOutOfStock = selectedSizeStock === 0 || product.inStock === false;
-  const isLowStock = !isOutOfStock && selectedSizeStock <= 2;
+  const isLowStock = !isOutOfStock && selectedSizeStock === 1;
 
   const breadcrumbs = ["Home", product.school || "School Uniforms", product.name];
   const isCloudinary = currentImage && (currentImage.includes("cloudinary.com") || currentImage.startsWith("http"));
@@ -264,7 +268,7 @@ export default function ProductDetailPage() {
                       ? Number(product.sizeStocks[size])
                       : (product.stockQuantity !== undefined ? Number(product.stockQuantity) : 10);
                     const isSzOut = szStock === 0 || product.inStock === false;
-                    const isSzLow = !isSzOut && szStock <= 2;
+                    const isSzLow = !isSzOut && szStock === 1;
                     return (
                       <button
                         key={size}

@@ -107,7 +107,7 @@ export default function ProductCard({ item }) {
               className={`h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full ${
                 item.stockQuantity === 0 || item.inStock === false
                   ? "bg-red-500"
-                  : (item.stockQuantity !== undefined && item.stockQuantity <= 2) || item.stock === "low"
+                  : item.stockQuantity === 1 || item.stockStatus === 'Low Stock' || item.stock === "low"
                   ? "bg-amber-500 animate-pulse"
                   : "bg-emerald-500"
               }`}
@@ -115,8 +115,8 @@ export default function ProductCard({ item }) {
             <span className="text-[#7F1D1D]">
               {item.stockQuantity === 0 || item.inStock === false
                 ? "Out of Stock"
-                : (item.stockQuantity !== undefined && item.stockQuantity <= 2) || item.stock === "low"
-                ? `Low Stock (${item.stockQuantity ?? 2} left)`
+                : item.stockQuantity === 1 || item.stockStatus === 'Low Stock' || item.stock === "low"
+                ? `Low Stock (1 left)`
                 : `In Stock`}
             </span>
           </div>

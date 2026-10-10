@@ -338,7 +338,7 @@ export default function CartPage() {
               <div className="flex justify-between items-center">
                 <dt>Home Delivery</dt>
                 <dd className="font-black text-[#047857]">
-                  FREE (Universal)
+                  FREE (Bathinda only)
                 </dd>
               </div>
 

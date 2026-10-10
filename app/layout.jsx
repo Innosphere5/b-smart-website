@@ -167,7 +167,30 @@ const jsonLd = {
   },
 };
 
-export default function RootLayout({ children }) {
+import DeliveryClosedGate from "@/components/DeliveryClosedGate";
+import { supabase } from "@/lib/supabase";
+
+async function getInitialShopStatus() {
+  try {
+    const { data, error } = await supabase
+      .from("notifications")
+      .select("message")
+      .eq("id", "sys_shop_status")
+      .maybeSingle();
+
+    if (!error && data?.message) {
+      const parsed = JSON.parse(data.message);
+      return parsed;
+    }
+  } catch (e) {
+    // Graceful fallback; client will fetch if server cannot reach
+  }
+  return null;
+}
+
+export default async function RootLayout({ children }) {
+  const initialShopStatus = await getInitialShopStatus();
+
   return (
     <html lang="en-IN" className={plusJakartaSans.variable}>
       <head>
@@ -181,13 +204,15 @@ export default function RootLayout({ children }) {
       </head>
       <body className="min-h-screen w-full bg-[#FEF8E7] font-sans antialiased text-navy-800 selection:bg-accent/40">
         <AuthProvider>
-          <ShopStatusProvider>
+          <ShopStatusProvider initialStatus={initialShopStatus}>
             <NotificationProvider>
               <CartProvider>
-                <ShopClosureBanner />
-                {children}
-                <NotificationToast />
-                <ShopClosurePopup />
+                <DeliveryClosedGate>
+                  <ShopClosureBanner />
+                  {children}
+                  <NotificationToast />
+                  <ShopClosurePopup />
+                </DeliveryClosedGate>
               </CartProvider>
             </NotificationProvider>
           </ShopStatusProvider>

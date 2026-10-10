@@ -5,9 +5,9 @@ import { supabase } from '@/lib/supabase';
 
 const ShopStatusContext = createContext(null);
 
-export function ShopStatusProvider({ children }) {
-  const [shopStatus, setShopStatus] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+export function ShopStatusProvider({ children, initialStatus = null }) {
+  const [shopStatus, setShopStatus] = useState(initialStatus);
+  const [isLoading, setIsLoading] = useState(!initialStatus);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [hasAcknowledged, setHasAcknowledged] = useState(false);
 
@@ -45,7 +45,10 @@ export function ShopStatusProvider({ children }) {
 
   // Initial load & Supabase Realtime CDC subscription
   useEffect(() => {
-    fetchStatus();
+    // If no initialStatus was passed, fetch immediately
+    if (!initialStatus) {
+      fetchStatus();
+    }
 
     // 1. Supabase Realtime Postgres Changes
     let channel;
@@ -83,7 +86,7 @@ export function ShopStatusProvider({ children }) {
       if (channel) supabase.removeChannel(channel);
       clearInterval(pollInterval);
     };
-  }, [fetchStatus]);
+  }, [fetchStatus, initialStatus]);
 
   // Auto-open popup on arrival if shop is closed and visitor has not acknowledged in this session
   useEffect(() => {
@@ -113,14 +116,22 @@ export function ShopStatusProvider({ children }) {
   }, [shopStatus?.updatedAt, shopStatus?.reopenDate]);
 
   const isClosed = Boolean(shopStatus?.isClosed);
+  const allowOrders = shopStatus?.allowOrders !== false;
+  const deliveryOrdersClosed = Boolean(shopStatus?.deliveryOrdersClosed);
+
+  // Delivery orders are considered closed if deliveryOrdersClosed is explicitly true,
+  // or if store is closed (isClosed === true), or if allowOrders is false.
+  const isDeliveryClosed = Boolean(
+    deliveryOrdersClosed || isClosed || !allowOrders
+  );
+
   const closureDays = Number(shopStatus?.closureDays) || 2;
   const reopenDate = shopStatus?.reopenDate;
   const reopenDateFormatted = shopStatus?.reopenDateFormatted || 'Saturday, 10 Oct 2026';
   const bannerTitle = shopStatus?.bannerTitle || `Shop Temporarily Closed for ${closureDays} Days`;
   const bannerMessage =
     shopStatus?.bannerMessage ||
-    `Our shop is closed for ${closureDays} days. We will reopen on ${reopenDateFormatted}. Online orders placed now will be processed as soon as we reopen!`;
-  const allowOrders = shopStatus?.allowOrders !== false;
+    `We are currently not processing any online orders, Please revisit our website after a few business days.`;
   const showTopBanner = isClosed && shopStatus?.showTopBanner !== false;
 
   return (
@@ -129,6 +140,8 @@ export function ShopStatusProvider({ children }) {
         shopStatus,
         isLoading,
         isClosed,
+        isDeliveryClosed,
+        deliveryOrdersClosed,
         closureDays,
         reopenDate,
         reopenDateFormatted,
