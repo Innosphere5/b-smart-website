@@ -210,15 +210,24 @@ export async function GET(request, { params }) {
           </div>
         ` : ''}
 
-        <div style="margin-top: 36px; text-align: center; font-size: 11px; color: #9CA3AF; border-top: 1px solid #E5E7EB; padding-top: 16px;">
-          <strong style="color:#881337; display:block; margin-bottom:6px;">TERMS &amp; CONDITIONS</strong>
-          <div style="text-align:left; max-width:600px; margin:auto; line-height:1.7;">
-            1. Any return or exchange of the product can be done within 7 days of purchase at  physical store #MCB-Z304654, Dr. Mela Ram Hospital Road, Amrik Singh Road, Bathinda (Punjab) <br>
+        <div style="margin-top: 32px; font-size: 11px; color: #6B7280; border-top: 1px solid #E5E7EB; padding-top: 14px;">
+          <strong style="color:#881337; display:block; margin-bottom:6px; text-transform: uppercase;">TERMS &amp; CONDITIONS</strong>
+          <div style="text-align:left; max-width:650px; line-height:1.6; font-size: 10.5px;">
+            1. Any return or exchange of the product can be done within 7 days of purchase at our physical store.<br>
             2. Original receipt or invoice is required.<br>
             3. Clothes should be unworn, unwashed and with all original tags unbroken should be there in same condition.<br>
-             4. No Guarantee No Claim on any product.<br>
-             5. Subject to Bathinda Jurisdiction only.<br>
-         </div>
+            4. No Guarantee No Claim on any product.<br>
+            5. Subject to Bathinda Jurisdiction only.<br>
+          </div>
+        </div>
+
+        <div style="margin-top: 24px; padding: 12px 16px; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; display: flex; align-items: center; gap: 12px;">
+          <div style="font-size: 20px; line-height: 1;">📍</div>
+          <div style="font-size: 11px; color: #1F2937; line-height: 1.5;">
+            <strong style="color: #881337;">STORE LOCATION &amp; OUTLET ADDRESS:</strong><br>
+            #MCB-Z304654, Dr. Mela Ram Hospital Road, Amrik Singh Road, Bathinda (Punjab) - 151001<br>
+            <span style="color: #6B7280; font-size: 10px;">GSTIN: 03ANXPG2252L1ZS &nbsp;|&nbsp; Ph: +91 98883-88170 &nbsp;|&nbsp; Web: bsmartdresses.com</span>
+          </div>
         </div>
       </body>
       </html>
