@@ -104,8 +104,41 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* SEO Quick Category & Location Route Links */}
+        <div className="mt-8 border-t border-white/15 pt-5 pb-1 text-center">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px] sm:text-xs font-semibold text-yellow-100/90">
+            <Link
+              href="/best-uniform-seller-bathinda"
+              className="hover:text-[#FACC15] transition-colors underline decoration-[#FACC15]/40 hover:decoration-[#FACC15]"
+            >
+              Best Uniform Seller at Bathinda
+            </Link>
+            <span className="text-[#FACC15]/40 hidden sm:inline">&bull;</span>
+            <Link
+              href="/best-school-dress-shop-in-bathinda"
+              className="hover:text-[#FACC15] transition-colors underline decoration-[#FACC15]/40 hover:decoration-[#FACC15]"
+            >
+              Best School Dress Shop in Bathinda
+            </Link>
+            <span className="text-[#FACC15]/40 hidden sm:inline">&bull;</span>
+            <Link
+              href="/best-uniform-dresses-bathinda"
+              className="hover:text-[#FACC15] transition-colors underline decoration-[#FACC15]/40 hover:decoration-[#FACC15]"
+            >
+              Best Uniform Dresses Bathinda
+            </Link>
+            <span className="text-[#FACC15]/40 hidden sm:inline">&bull;</span>
+            <Link
+              href="/school-uniforms-bathinda"
+              className="hover:text-[#FACC15] transition-colors underline decoration-[#FACC15]/40 hover:decoration-[#FACC15]"
+            >
+              School Uniforms Bathinda
+            </Link>
+          </div>
+        </div>
+
         {/* Bottom Copyright */}
-        <div className="mt-8 sm:mt-10 border-t border-white/20 pt-4 sm:pt-6 text-center text-[11px] sm:text-xs font-bold text-yellow-100/70 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3">
+        <div className="mt-6 sm:mt-8 border-t border-white/20 pt-4 sm:pt-6 text-center text-[11px] sm:text-xs font-bold text-yellow-100/70 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3">
           <p>© 2026 B&apos;Smart Dresses. All Rights Reserved.</p>
           <p className="text-[10px] sm:text-[11px] text-white/90">
             GSTIN: <span className="text-[#FACC15]">03ANXPG2252L1ZS</span> | UID: <span className="text-[#FACC15]">MCB-Z304654</span>

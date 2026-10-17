@@ -17,12 +17,29 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 export const metadata = {
   metadataBase: new URL("https://bsmartdresses.com"),
   title: {
-    default: "B'Smart Dresses Bathinda | Buy School Uniforms Online in Punjab",
+    default: "Best Uniform Seller at Bathinda | Best School Dress Shop in Bathinda | B'Smart Dresses",
     template: "%s | B'Smart Dresses Bathinda",
   },
   description:
-    "Shop premium school uniforms online at B'Smart Dresses, Bathinda. Trusted by DPS, St. Xavier, St. Joseph, Silver Oaks & DAV families across Punjab. Fast doorstep delivery, min order Rs500.",
+    "B'Smart Dresses is the best uniform seller at Bathinda & best school dress shop in Bathinda. Buy best uniform dresses, school uniforms, blazers, shirts, skirts & tracksuits for DPS, St. Xavier, St. Joseph, Silver Oaks & DAV. Fast home delivery across Bathinda.",
   keywords: [
+    // Exact Target Search Keywords
+    "best uniform seller at bathinda",
+    "best uniform seller in bathinda",
+    "best school dress shop in bathinda",
+    "best school dress shop bathinda",
+    "best unifrom dresses",
+    "best uniform dresses",
+    "best uniform dresses in bathinda",
+    "best uniform dresses bathinda",
+    "school uniform seller bathinda",
+    "uniform seller bathinda",
+    "school dress shop bathinda",
+    "school dress seller bathinda",
+    "best school dresses bathinda",
+    "school dress shop in bathinda",
+    "buy school dresses in bathinda",
+    "school dresses in bathinda",
     // Brand
     "B'Smart Dresses", "BSmart Dresses Bathinda", "B Smart Dresses",
     // Core local intent
@@ -64,27 +81,27 @@ export const metadata = {
     type: "website",
     locale: "en_IN",
     url: "https://bsmartdresses.com",
-    siteName: "B'Smart Dresses Bathinda",
-    title: "B'Smart Dresses - Premium School Uniforms | Bathinda, Punjab",
+    siteName: "B'Smart Dresses - Best Uniform Seller at Bathinda",
+    title: "Best Uniform Seller at Bathinda | Best School Dress Shop - B'Smart Dresses",
     description:
-      "Order quality school uniforms online from B'Smart Dresses, Bathinda. Serving DPS, St. Xavier, St. Joseph, Silver Oaks, DAV & 10+ top schools.",
+      "Bathinda's top-rated uniform seller & school dress shop. Shop the best uniform dresses online for DPS, St. Xavier, St. Joseph, Silver Oaks & DAV with fast home delivery.",
     images: [
       {
-        url: "/logo.png",
+        url: "/logo.jpg",
         width: 1200,
         height: 630,
-        alt: "B'Smart Dresses Bathinda - School Uniform Store",
+        alt: "B'Smart Dresses - Best Uniform Seller & School Dress Shop at Bathinda",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "B'Smart Dresses Bathinda - School Uniforms & Home Delivery",
+    title: "Best Uniform Seller at Bathinda | Best School Dress Shop in Bathinda",
     description:
-      "Punjab's premium school uniform store. Order online for DPS, St. Xavier, Silver Oaks & more. Fast doorstep delivery.",
-    images: ["/logo.png"],
+      "Buy the best uniform dresses in Bathinda online at B'Smart Dresses. Serving DPS, St. Xavier, St. Joseph, Silver Oaks, DAV & top Punjab schools with fast delivery.",
+    images: ["/logo.jpg"],
   },
-  icons: { icon: "/logo.png", apple: "/logo.png", shortcut: "/logo.png" },
+  icons: { icon: "/logo.jpg", apple: "/logo.jpg", shortcut: "/logo.jpg" },
   manifest: "/manifest.json",
   applicationName: "B'Smart Dresses",
   authors: [{ name: "B'Smart Dresses Bathinda", url: "https://bsmartdresses.com" }],
@@ -113,57 +130,141 @@ export const viewport = {
 
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "ClothingStore",
-  "@id": "https://bsmartdresses.com/#organization",
-  name: "B'Smart Dresses",
-  alternateName: ["BSmart Dresses", "B Smart Dresses Bathinda"],
-  url: "https://bsmartdresses.com",
-  logo: "https://bsmartdresses.com/logo.png",
-  image: "https://bsmartdresses.com/logo.png",
-  description:
-    "B'Smart Dresses is Bathinda's trusted school uniform store offering premium quality uniforms for top schools in Punjab with fast doorstep delivery.",
-  telephone: "+91-9888388170",
-  priceRange: "Rs",
-  currenciesAccepted: "INR",
-  paymentAccepted: "Cash, UPI, Credit Card, Debit Card",
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: "Amrik Singh Road, Dr. Mela Ram Hospital Road",
-    addressLocality: "Bathinda",
-    addressRegion: "Punjab",
-    postalCode: "151001",
-    addressCountry: "IN",
-  },
-  geo: { "@type": "GeoCoordinates", latitude: 30.211, longitude: 74.9455 },
-  areaServed: {
-    "@type": "City",
-    name: "Bathinda",
-    containedInPlace: { "@type": "State", name: "Punjab" },
-  },
-  openingHoursSpecification: [
+  "@graph": [
     {
-      "@type": "OpeningHoursSpecification",
-      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-      opens: "10:00",
-      closes: "19:00",
+      "@type": ["ClothingStore", "LocalBusiness", "Store"],
+      "@id": "https://bsmartdresses.com/#localbusiness",
+      name: "B'Smart Dresses - Best Uniform Seller at Bathinda",
+      alternateName: [
+        "B'Smart Dresses",
+        "BSmart Dresses Bathinda",
+        "Best Uniform Seller at Bathinda",
+        "Best Uniform Seller in Bathinda",
+        "Best School Dress Shop in Bathinda",
+        "Best Uniform Dresses Bathinda",
+        "B Smart Dresses"
+      ],
+      url: "https://bsmartdresses.com",
+      logo: "https://bsmartdresses.com/logo.jpg",
+      image: [
+        "https://bsmartdresses.com/logo.jpg",
+        "https://bsmartdresses.com/hero-kids.png"
+      ],
+      description:
+        "B'Smart Dresses is the top-rated school uniform seller and premier school dress shop in Bathinda, Punjab. Offering best uniform dresses, school shirts, trousers, skirts, blazers, sweaters, tracksuits, ties, and belts for DPS Bathinda, St. Xavier, St. Joseph, Silver Oaks, DAV and top schools with fast home delivery.",
+      telephone: "+91-9888388170",
+      priceRange: "₹₹",
+      currenciesAccepted: "INR",
+      paymentAccepted: "Cash, UPI, Credit Card, Debit Card, Net Banking",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "#MCB-Z304654, Dr. Mela Ram Hospital Road, Amrik Singh Road",
+        addressLocality: "Bathinda",
+        addressRegion: "Punjab",
+        postalCode: "151001",
+        addressCountry: "IN",
+      },
+      geo: {
+        "@type": "GeoCoordinates",
+        latitude: 30.211,
+        longitude: 74.9455,
+      },
+      areaServed: [
+        { "@type": "City", name: "Bathinda" },
+        { "@type": "AdministrativeArea", name: "Bathinda District" },
+        { "@type": "State", name: "Punjab" },
+      ],
+      openingHoursSpecification: [
+        {
+          "@type": "OpeningHoursSpecification",
+          dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+          opens: "10:00",
+          closes: "20:00",
+        },
+      ],
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: "4.9",
+        reviewCount: "184",
+        bestRating: "5",
+        worstRating: "1",
+      },
+      sameAs: [
+        "https://bsmartdresses.com",
+      ],
+      hasOfferCatalog: {
+        "@type": "OfferCatalog",
+        name: "School Uniforms & Best Uniform Dresses",
+        itemListElement: [
+          { "@type": "Offer", itemOffered: { "@type": "Product", name: "Best Uniform Dresses" } },
+          { "@type": "Offer", itemOffered: { "@type": "Product", name: "School Shirts" } },
+          { "@type": "Offer", itemOffered: { "@type": "Product", name: "School Pants and Trousers" } },
+          { "@type": "Offer", itemOffered: { "@type": "Product", name: "School Skirts" } },
+          { "@type": "Offer", itemOffered: { "@type": "Product", name: "School Blazers" } },
+          { "@type": "Offer", itemOffered: { "@type": "Product", name: "School Sweaters" } },
+          { "@type": "Offer", itemOffered: { "@type": "Product", name: "School Track Suits" } },
+          { "@type": "Offer", itemOffered: { "@type": "Product", name: "School Ties and Belts" } },
+        ],
+      },
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://bsmartdresses.com/#website",
+      url: "https://bsmartdresses.com",
+      name: "B'Smart Dresses - Best Uniform Seller at Bathinda",
+      potentialAction: {
+        "@type": "SearchAction",
+        target: "https://bsmartdresses.com/?search={search_term_string}",
+        "query-input": "required name=search_term_string",
+      },
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://bsmartdresses.com/#faq",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "Who is the best uniform seller at Bathinda?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "B'Smart Dresses is recognized as the best uniform seller at Bathinda, located at Dr. Mela Ram Hospital Road, Amrik Singh Road, Bathinda. They stock verified premium school uniforms for DPS, St. Xavier, St. Joseph, Silver Oaks, DAV, and top Punjab schools with fast doorstep delivery.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Which is the best school dress shop in Bathinda?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "B'Smart Dresses is the best school dress shop in Bathinda, offering an extensive selection of school dresses including shirts, trousers, skirts, blazers, sweaters, tracksuits, ties, and belts made from durable, breathable fabrics.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Where can I buy the best uniform dresses online in Bathinda?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "You can buy the best uniform dresses directly online through B'Smart Dresses at bsmartdresses.com with convenient doorstep delivery across Bathinda, Punjab.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Which schools in Bathinda does B'Smart Dresses provide uniforms for?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "B'Smart Dresses provides uniforms for Delhi Public School (DPS) Bathinda, St. Xavier School, St. Joseph School, Silver Oaks School, DAV Public School, St. Paul's School, and other leading schools in the region.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "What are the store timings and phone number of B'Smart Dresses Bathinda?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Store hours are Monday through Saturday from 10:00 AM to 8:00 PM. You can contact the store helpline directly at +91 9888388170.",
+          },
+        },
+      ],
     },
   ],
-  sameAs: [
-    "https://bsmartdresses.com",
-    // Add real social profiles here (Facebook/Instagram) — sameAs signals boost entity trust
-  ],
-  hasOfferCatalog: {
-    "@type": "OfferCatalog",
-    name: "School Uniforms",
-    itemListElement: [
-      { "@type": "Offer", itemOffered: { "@type": "Product", name: "School Shirts" } },
-      { "@type": "Offer", itemOffered: { "@type": "Product", name: "School Pants" } },
-      { "@type": "Offer", itemOffered: { "@type": "Product", name: "School Skirts" } },
-      { "@type": "Offer", itemOffered: { "@type": "Product", name: "School Blazers" } },
-      { "@type": "Offer", itemOffered: { "@type": "Product", name: "School Sweaters" } },
-      { "@type": "Offer", itemOffered: { "@type": "Product", name: "School Track Suits" } },
-    ],
-  },
 };
 
 import DeliveryClosedGate from "@/components/DeliveryClosedGate";
